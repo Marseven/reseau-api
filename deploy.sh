@@ -12,7 +12,7 @@ REPO_URL="https://github.com/Marseven/reseau-api.git"
 BRANCH="main"
 DOMAIN="reseau-api.jobs-conseil.host"
 PUBLIC_HTML="$HOME/domains/$DOMAIN/public_html"
-REPO_DIR="$HOME/reseau-api"
+REPO_DIR="$HOME/domains/jobs-conseil.host/public_html/reseau-api"
 BACKUP_DIR="$HOME/backups/reseau-api"
 
 # ── Auto-détection PHP 8.2+ ──
