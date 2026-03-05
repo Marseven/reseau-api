@@ -16,48 +16,47 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'name' => 'Admin',
-                'surname' => 'Super',
-                'username' => 'admin',
-                'phone' => '1234567890',
+                'name' => 'Administrateur',
+                'surname' => 'Système',
+                'username' => 'administrateur',
+                'phone' => '+241 74 00 00 01',
                 'role' => 'administrator',
-                'email' => 'admin@example.com',
-                'password' => Hash::make('password'), // Mot de passe sécurisé
+                'email' => 'administrateur@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
                 'is_active' => true,
             ],
             [
-                'name' => 'John',
-                'surname' => 'Doe',
-                'username' => 'johndoe',
-                'phone' => '0987654321',
-                'role' => 'user',
-                'email' => 'johndoe@example.com',
-                'password' => Hash::make('password'),
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Jane',
-                'surname' => 'Smith',
-                'username' => 'janesmith',
-                'phone' => '1122334455',
-                'role' => 'technicien',
-                'email' => 'janesmith@example.com',
-                'password' => Hash::make('password'),
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Alice',
-                'surname' => 'Brown',
-                'username' => 'alicebrown',
-                'phone' => '6677889900',
+                'name' => 'Directeur',
+                'surname' => 'Réseau',
+                'username' => 'directeur',
+                'phone' => '+241 74 00 00 02',
                 'role' => 'directeur',
-                'email' => 'alicebrown@example.com',
-                'password' => Hash::make('password'),
+                'email' => 'directeur@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Technicien',
+                'surname' => 'Réseau',
+                'username' => 'technicien',
+                'phone' => '+241 74 00 00 03',
+                'role' => 'technicien',
+                'email' => 'technicien@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Utilisateur',
+                'surname' => 'Standard',
+                'username' => 'utilisateur',
+                'phone' => '+241 74 00 00 04',
+                'role' => 'user',
+                'email' => 'utilisateur@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
                 'is_active' => true,
             ],
         ];
 
-        // Insérer les utilisateurs dans la base de données
         foreach ($users as $user) {
             User::create($user);
         }
