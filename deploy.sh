@@ -14,7 +14,46 @@ DOMAIN_DIR="$HOME/domains/api-rmap.jobs-conseil.host"
 PUBLIC_HTML="$DOMAIN_DIR/public_html"
 REPO_DIR="$HOME/reseau-api"
 BACKUP_DIR="$HOME/backups/reseau-api"
-PHP_BIN=$(which php 2>/dev/null || echo "php")
+
+# ── Auto-détection PHP 8.2+ ──
+# Sur hébergement mutualisé, le binaire par défaut est souvent PHP 7.x
+# On cherche PHP 8.2+ dans les chemins courants (Hostinger, CloudLinux, cPanel)
+detect_php() {
+    local candidates=(
+        "/usr/bin/php8.2"
+        "/usr/bin/php8.3"
+        "/usr/bin/php8.4"
+        "/opt/alt/php82/usr/bin/php"
+        "/opt/alt/php83/usr/bin/php"
+        "/opt/alt/php84/usr/bin/php"
+        "/usr/local/bin/php8.2"
+        "/usr/local/bin/php8.3"
+        "/usr/local/bin/php8.4"
+        "$HOME/bin/php"
+    )
+    for bin in "${candidates[@]}"; do
+        if [ -x "$bin" ]; then
+            local ver=$("$bin" -r 'echo PHP_MAJOR_VERSION;' 2>/dev/null)
+            if [ "$ver" -ge 8 ] 2>/dev/null; then
+                echo "$bin"
+                return 0
+            fi
+        fi
+    done
+    # Fallback : vérifier si le php par défaut est 8.2+
+    local default_php=$(which php 2>/dev/null)
+    if [ -n "$default_php" ]; then
+        local ver=$("$default_php" -r 'echo PHP_MAJOR_VERSION;' 2>/dev/null)
+        if [ "$ver" -ge 8 ] 2>/dev/null; then
+            echo "$default_php"
+            return 0
+        fi
+    fi
+    echo ""
+    return 1
+}
+
+PHP_BIN=$(detect_php)
 
 # ── Couleurs ──
 GREEN='\033[0;32m'
@@ -38,19 +77,42 @@ echo -e "  Mode : ${YELLOW}${COMMAND}${NC}"
 echo ""
 
 # ── Vérifications ──
-info "Vérification de PHP..."
-PHP_VERSION=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null || echo "inconnu")
+info "Recherche de PHP 8.2+..."
+if [ -z "$PHP_BIN" ]; then
+    echo ""
+    error "PHP 8.2+ introuvable ! Laravel 11 requiert PHP >= 8.2.
+
+  Vérifiez les versions disponibles sur votre serveur :
+    ls /usr/bin/php*
+    ls /opt/alt/php*/usr/bin/php
+
+  Puis définissez le chemin manuellement :
+    export PHP_BIN=/chemin/vers/php8.2
+    bash deploy.sh $COMMAND
+
+  Ou sur Hostinger, activez PHP 8.2 dans le panel."
+fi
+
+PHP_VERSION=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION.".".PHP_RELEASE_VERSION;' 2>/dev/null || echo "inconnu")
+PHP_MAJOR=$($PHP_BIN -r 'echo PHP_MAJOR_VERSION;' 2>/dev/null || echo "0")
+PHP_MINOR=$($PHP_BIN -r 'echo PHP_MINOR_VERSION;' 2>/dev/null || echo "0")
+
+if [ "$PHP_MAJOR" -lt 8 ] || ([ "$PHP_MAJOR" -eq 8 ] && [ "$PHP_MINOR" -lt 2 ]); then
+    error "PHP $PHP_VERSION détecté ($PHP_BIN) - Laravel 11 requiert PHP >= 8.2"
+fi
+
 log "PHP $PHP_VERSION détecté ($PHP_BIN)"
 
+# ── Composer (utilise le même PHP) ──
 if ! command -v composer &>/dev/null; then
-    # Installer composer localement si absent
     if [ ! -f "$HOME/composer.phar" ]; then
         warn "Composer non trouvé, installation locale..."
         curl -sS https://getcomposer.org/installer | $PHP_BIN -- --install-dir="$HOME" --filename=composer.phar
     fi
     COMPOSER="$PHP_BIN $HOME/composer.phar"
 else
-    COMPOSER="composer"
+    # Forcer composer à utiliser le bon PHP
+    COMPOSER="$PHP_BIN $(which composer)"
 fi
 log "Composer disponible"
 
