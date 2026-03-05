@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 #  ReseauApp API (Laravel) - Script de déploiement
-#  Serveur : api-rmap.jobs-conseil.host (ou sous-domaine API)
+#  Serveur : reseau-api.jobs-conseil.host
 #  Usage   : bash deploy.sh [setup|update|rollback]
 # ============================================================
 
@@ -10,8 +10,8 @@ set -e
 # ── Configuration ──
 REPO_URL="https://github.com/Marseven/reseau-api.git"
 BRANCH="main"
-DOMAIN_DIR="$HOME/domains/api-rmap.jobs-conseil.host"
-PUBLIC_HTML="$DOMAIN_DIR/public_html"
+DOMAIN="reseau-api.jobs-conseil.host"
+PUBLIC_HTML="$HOME/domains/$DOMAIN/public_html"
 REPO_DIR="$HOME/reseau-api"
 BACKUP_DIR="$HOME/backups/reseau-api"
 
@@ -154,7 +154,7 @@ if [ "$COMMAND" = "setup" ]; then
         echo ""
         echo "  APP_ENV=production"
         echo "  APP_DEBUG=false"
-        echo "  APP_URL=https://api-rmap.jobs-conseil.host"
+        echo "  APP_URL=https://reseau-api.jobs-conseil.host"
         echo ""
         echo "  DB_CONNECTION=mysql"
         echo "  DB_HOST=127.0.0.1"
@@ -163,7 +163,7 @@ if [ "$COMMAND" = "setup" ]; then
         echo "  DB_USERNAME=votre_user"
         echo "  DB_PASSWORD=votre_password"
         echo ""
-        echo "  SANCTUM_STATEFUL_DOMAINS=rmap.jobs-conseil.host"
+        echo "  SANCTUM_STATEFUL_DOMAINS=reseau.jobs-conseil.host"
         echo "  SESSION_DOMAIN=.jobs-conseil.host"
         echo ""
         echo -e "  Puis relancez : ${GREEN}bash deploy.sh setup${NC}"
@@ -248,7 +248,7 @@ if [ "$COMMAND" = "setup" ]; then
 
 # ── CORS Headers ──
 <IfModule mod_headers.c>
-    Header always set Access-Control-Allow-Origin "https://rmap.jobs-conseil.host"
+    Header always set Access-Control-Allow-Origin "https://reseau.jobs-conseil.host"
     Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept"
     Header always set Access-Control-Allow-Credentials "true"
@@ -287,8 +287,8 @@ HTACCESS
     echo -e "${GREEN}   Installation terminée !${NC}"
     echo -e "${GREEN}══════════════════════════════════════════════${NC}"
     echo ""
-    echo -e "  ${CYAN}API URL${NC}  : https://api-rmap.jobs-conseil.host"
-    echo -e "  ${CYAN}Health${NC}   : https://api-rmap.jobs-conseil.host/up"
+    echo -e "  ${CYAN}API URL${NC}  : https://reseau-api.jobs-conseil.host"
+    echo -e "  ${CYAN}Health${NC}   : https://reseau-api.jobs-conseil.host/up"
     echo -e "  ${CYAN}Repo${NC}     : $REPO_DIR"
     echo -e "  ${CYAN}Symlink${NC}  : public_html → $REPO_DIR/public"
     echo ""
