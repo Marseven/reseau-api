@@ -121,16 +121,23 @@ log "Composer disponible"
 # ══════════════════════════════════════════════
 if [ "$COMMAND" = "setup" ]; then
 
-    # ── Étape 1 : Cloner le dépôt ──
-    if [ -d "$REPO_DIR/.git" ]; then
-        warn "Le dépôt existe déjà dans $REPO_DIR"
-    else
-        info "Clonage du dépôt..."
-        git clone --branch "$BRANCH" "$REPO_URL" "$REPO_DIR"
-        log "Dépôt cloné"
-    fi
-
+    # ── Étape 1 : Initialiser le dépôt ──
+    mkdir -p "$REPO_DIR"
     cd "$REPO_DIR"
+
+    if [ -d ".git" ]; then
+        warn "Le dépôt git existe déjà"
+        git fetch origin "$BRANCH" --quiet
+        git reset --hard "origin/$BRANCH" 2>/dev/null
+        log "Code mis à jour depuis origin/$BRANCH"
+    else
+        info "Initialisation du dépôt dans le dossier existant..."
+        git init
+        git remote add origin "$REPO_URL"
+        git fetch origin "$BRANCH"
+        git checkout -b "$BRANCH" "origin/$BRANCH"
+        log "Dépôt initialisé et code récupéré"
+    fi
 
     # ── Étape 2 : Installer les dépendances ──
     info "Installation des dépendances (production)..."
