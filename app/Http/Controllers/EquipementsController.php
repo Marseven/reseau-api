@@ -3,109 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Equipement;
-use App\Models\Equipements;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreEquipementRequest;
+use App\Http\Requests\UpdateEquipementRequest;
 use Illuminate\Http\Request;
 
 class EquipementsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = Equipement::all();
+        $query = Equipement::with('coffret');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $equipement = $query->orderBy('name')->paginate(15);
+        $equipements = $query->orderBy('name')->paginate($request->integer('per_page', 15));
 
-        return response()->json($equipement);
+        return ApiResponse::success($equipements);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreEquipementRequest $request)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
+        $equipement = Equipement::create($request->validated());
 
-        $request->validate([
-            'equipement_code' => 'required|string|max:255|unique',
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'direction_in_out' => 'nullable|string',
-            'vlan' => 'nullable|string',
-            'ip_address' => 'nullable|ip',
-            'coffret_id' => 'required|exists:coffrets,id',
-            'status' => 'required|in:active,inactive,maintenance',
-        ]);
-
-        $equipement = Equipement::create($request->all());
-
-        return response()->json([
-            'message' => 'Équipement créé avec succès.',
-            'equipement' => $equipement,
-        ], 201);
+        return ApiResponse::created($equipement, 'Équipement créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Equipement $equipement)
     {
-        return response()->json($equipement->load('coffret', 'ports'));
+        return ApiResponse::success($equipement->load('coffret', 'ports'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Equipement $equipement)
+    public function update(UpdateEquipementRequest $request, Equipement $equipement)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-        
-        $request->validate([
-            'equipement_code' => 'sometimes|string|max:255|unique',
-            'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'direction_in_out' => 'nullable|string',
-            'vlan' => 'nullable|string',
-            'ip_address' => 'nullable|ip',
-            'coffret_id' => 'sometimes|exists:coffrets,id',
-            'status' => 'sometimes|in:active,inactive,maintenance',
-        ]);
+        $equipement->update($request->validated());
 
-        $equipement->update($request->all());
-
-        return response()->json([
-            'message' => 'Équipement mis à jour avec succès.',
-            'equipement' => $equipement,
-        ], 200);
+        return ApiResponse::success($equipement, 'Équipement mis à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Equipement $equipement)
     {
         $equipement->delete();
 
-        return response()->json([
-            'message' => 'Équipement supprimé avec succès.',
-        ], 200);
+        return ApiResponse::success(null, 'Équipement supprimé avec succès.');
     }
 }

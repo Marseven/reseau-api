@@ -3,94 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Metric;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreMetricRequest;
+use App\Http\Requests\UpdateMetricRequest;
 use Illuminate\Http\Request;
 
 class MetricController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = Metric::all();
+        $query = Metric::with('coffret');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $metrics = $query->orderBy('name')->paginate(15);
+        $metrics = $query->orderBy('name')->paginate($request->integer('per_page', 15));
 
-        return response()->json($metrics);
+        return ApiResponse::success($metrics);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreMetricRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'last_value' => 'nullable|string|max:255',
-            'coffret_id' => 'required|exists:coffrets,id',
-            'status' => 'required|boolean',
-        ]);
+        $metric = Metric::create($request->validated());
 
-        $metric = Metric::create($request->all());
-
-        return response()->json([
-            'message' => 'Metric créée avec succès.',
-            'metric' => $metric,
-        ], 201);
+        return ApiResponse::created($metric, 'Metric créée avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Metric $metric)
     {
-        return response()->json($metric);
+        return ApiResponse::success($metric->load('coffret'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Metric $metric)
+    public function update(UpdateMetricRequest $request, Metric $metric)
     {
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'last_value' => 'nullable|string|max:255',
-            'coffret_id' => 'sometimes|exists:coffrets,id',
-            'status' => 'sometimes|boolean',
-        ]);
+        $metric->update($request->validated());
 
-        $metric->update($request->all());
-
-        return response()->json([
-            'message' => 'Metric mise à jour avec succès.',
-            'metric' => $metric,
-        ], 200);
+        return ApiResponse::success($metric, 'Metric mise à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Metric $metric)
     {
         $metric->delete();
 
-        return response()->json([
-            'message' => 'Metric supprimée avec succès.',
-        ], 200);
+        return ApiResponse::success(null, 'Metric supprimée avec succès.');
     }
 }

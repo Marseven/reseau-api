@@ -3,105 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Port;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StorePortRequest;
+use App\Http\Requests\UpdatePortRequest;
 use Illuminate\Http\Request;
 
 class PortController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-        $query = Port::all();
+        $query = Port::with('connectedEquipment');
 
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        if ($request->has('vlan')) {
+            $query->where('vlan', $request->vlan);
         }
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->where('port_label', 'like', '%' . $request->search . '%');
         }
 
-        $zone = $query->orderBy('name')->paginate(15);
+        $ports = $query->orderBy('port_label')->paginate($request->integer('per_page', 15));
 
-        return response()->json($zone);
+        return ApiResponse::success($ports);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StorePortRequest $request)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
+        $port = Port::create($request->validated());
 
-        $request->validate([
-            'port_label' => 'required|string|max:255',
-            'device_name' => 'required|string|max:255',
-            'poe_enabled' => 'required|boolean',
-            'vlan' => 'nullable|string|max:255',
-            'speed' => 'nullable|string|max:255',
-            'connected_equipment_id' => 'nullable|exists:equipements,id',
-        ]);
-
-        $port = Port::create($request->all());
-
-        return response()->json([
-            'message' => 'Port créé avec succès.',
-            'port' => $port,
-        ], 201);
+        return ApiResponse::created($port, 'Port créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Port $port)
     {
-        return response()->json($port);
+        return ApiResponse::success($port->load('connectedEquipment'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Port $port)
+    public function update(UpdatePortRequest $request, Port $port)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-        
-        $request->validate([
-            'port_label' => 'sometimes|string|max:255',
-            'device_name' => 'sometimes|string|max:255',
-            'poe_enabled' => 'sometimes|boolean',
-            'vlan' => 'nullable|string|max:255',
-            'speed' => 'nullable|string|max:255',
-            'connected_equipment_id' => 'nullable|exists:equipements,id',
-        ]);
+        $port->update($request->validated());
 
-        $port->update($request->all());
-
-        return response()->json([
-            'message' => 'Port mis à jour avec succès.',
-            'port' => $port,
-        ], 200);
+        return ApiResponse::success($port, 'Port mis à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Port $port)
     {
         $port->delete();
 
-        return response()->json([
-            'message' => 'Port supprimé avec succès.',
-        ], 200);
+        return ApiResponse::success(null, 'Port supprimé avec succès.');
     }
 }

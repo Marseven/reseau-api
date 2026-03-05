@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Port extends Model
 {
-
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'port_label',
@@ -19,9 +19,11 @@ class Port extends Model
         'connected_equipment_id',
     ];
 
-    public function equipment()
+    protected function casts(): array
     {
-        return $this->belongsTo(Equipement::class, 'connected_equipment_id');
+        return [
+            'poe_enabled' => 'boolean',
+        ];
     }
 
     public function connectedEquipment()

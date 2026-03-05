@@ -3,107 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\Liaison;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreLiaisonRequest;
+use App\Http\Requests\UpdateLiaisonRequest;
 use Illuminate\Http\Request;
 
 class LiaisonController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = Liaison::all();
+        $query = Liaison::with('fromEquipement', 'toEquipement');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->where('label', 'like', '%' . $request->search . '%');
         }
 
-        $liaisons = $query->orderBy('name')->paginate(15);
+        $liaisons = $query->orderBy('label')->paginate($request->integer('per_page', 15));
 
-        return response()->json($liaisons);
+        return ApiResponse::success($liaisons);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreLiaisonRequest $request)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-        
-        $request->validate([
-            'from' => 'required|exists:equipements,id',
-            'to' => 'required|exists:equipements,id',
-            'label' => 'required|string|max:255',
-            'media' => 'required|string|max:255',
-            'length' => 'nullable|integer',
-            'status' => 'required|boolean',
-        ]);
+        $liaison = Liaison::create($request->validated());
 
-        $liaison = Liaison::create($request->all());
-
-        return response()->json([
-            'message' => 'Liaison créée avec succès.',
-            'liaison' => $liaison,
-        ], 201);
+        return ApiResponse::created($liaison, 'Liaison créée avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Liaison $liaison)
     {
-        $liaison->load(['fromEquipement', 'toEquipement']);
-        return response()->json($liaison);
+        return ApiResponse::success($liaison->load('fromEquipement', 'toEquipement'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Liaison $liaison)
+    public function update(UpdateLiaisonRequest $request, Liaison $liaison)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
+        $liaison->update($request->validated());
 
-        $request->validate([
-            'from' => 'sometimes|exists:equipements,id',
-            'to' => 'sometimes|exists:equipements,id',
-            'label' => 'sometimes|string|max:255',
-            'media' => 'sometimes|string|max:255',
-            'length' => 'nullable|integer',
-            'status' => 'sometimes|boolean',
-        ]);
-
-        $liaison->update($request->all());
-
-        return response()->json([
-            'message' => 'Liaison mise à jour avec succès.',
-            'liaison' => $liaison,
-        ], 200);
+        return ApiResponse::success($liaison, 'Liaison mise à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Liaison $liaison)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-
         $liaison->delete();
 
-        return response()->json([
-            'message' => 'Liaison supprimée avec succès.',
-        ], 200);
+        return ApiResponse::success(null, 'Liaison supprimée avec succès.');
     }
 }

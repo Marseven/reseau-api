@@ -3,116 +3,53 @@
 namespace App\Http\Controllers;
 
 use App\Models\System;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\StoreSystemRequest;
+use App\Http\Requests\UpdateSystemRequest;
 use Illuminate\Http\Request;
 
 class SystemController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
-        $query = System::all();
+        $query = System::query();
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
         if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $count = 15;
+        $systems = $query->orderBy('name')->paginate($request->integer('per_page', 15));
 
-        if ($request->has('count')) {
-            $count = $request->count;
-        }
-
-        $systems = $query->orderBy('name')->paginate($count);
-
-        return response()->json($systems);
+        return ApiResponse::success($systems);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreSystemRequest $request)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
+        $system = System::create($request->validated());
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'vendor' => 'nullable|string',
-            'endpoint' => 'nullable|string',
-            'monitored_scope' => 'nullable|string',
-            'coffret_id' => 'required|exists:coffrets,id',
-            'status' => 'required|boolean',
-        ]);
-
-        $system = System::create($request->all());
-
-        return response()->json([
-            'message' => 'Système créé avec succès.',
-            'system' => $system,
-        ], 201);
+        return ApiResponse::created($system, 'Système créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(System $system)
     {
-        return response()->json($system);
+        return ApiResponse::success($system);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, System $system)
+    public function update(UpdateSystemRequest $request, System $system)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
+        $system->update($request->validated());
 
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'type' => 'sometimes|string|max:255',
-            'description' => 'nullable|string',
-            'vendor' => 'nullable|string',
-            'endpoint' => 'nullable|string',
-            'monitored_scope' => 'nullable|string',
-            'coffret_id' => 'sometimes|exists:coffrets,id',
-            'status' => 'sometimes|boolean',
-        ]);
-
-        $system->update($request->all());
-
-        return response()->json([
-            'message' => 'Système mis à jour avec succès.',
-            'system' => $system,
-        ], 200);
+        return ApiResponse::success($system, 'Système mis à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(System $system)
     {
-        if (!auth()->user()->isAdministrator()) {
-            return response()->json(['message' => 'Non autorisé'], 403);
-        }
-
         $system->delete();
 
-        return response()->json([
-            'message' => 'Système supprimé avec succès.',
-        ], 200);
+        return ApiResponse::success(null, 'Système supprimé avec succès.');
     }
 }

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Equipement extends Model
 {
-    use HasFactory;
-    
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'equipement_code',
         'name',
@@ -28,6 +29,6 @@ class Equipement extends Model
 
     public function ports()
     {
-        return $this->hasMany(Port::class);
+        return $this->hasMany(Port::class, 'connected_equipment_id');
     }
 }

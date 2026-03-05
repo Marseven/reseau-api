@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Metric extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    /**
-     * Les colonnes qui peuvent être remplies via des requêtes.
-     */
     protected $fillable = [
         'name',
         'type',
@@ -21,9 +19,6 @@ class Metric extends Model
         'status',
     ];
 
-    /**
-     * Relation avec le modèle Coffret.
-     */
     public function coffret()
     {
         return $this->belongsTo(Coffret::class);
