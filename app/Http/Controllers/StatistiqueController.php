@@ -8,6 +8,8 @@ use App\Models\Port;
 use App\Models\Metric;
 use App\Models\Liaison;
 use App\Models\System;
+use App\Models\Site;
+use App\Models\Zone;
 use App\Helpers\ApiResponse;
 use Illuminate\Support\Facades\Cache;
 
@@ -17,6 +19,16 @@ class StatistiqueController extends Controller
     {
         $stats = Cache::remember('stats.global', 300, function () {
             return [
+                'sites' => [
+                    'total' => Site::count(),
+                    'active' => Site::where('status', 'active')->count(),
+                    'inactive' => Site::where('status', '!=', 'active')->count(),
+                ],
+                'zones' => [
+                    'total' => Zone::count(),
+                    'active' => Zone::where('status', 'active')->count(),
+                    'inactive' => Zone::where('status', '!=', 'active')->count(),
+                ],
                 'coffrets' => [
                     'total' => Coffret::count(),
                     'active' => Coffret::where('status', 'active')->count(),

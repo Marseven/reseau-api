@@ -8,7 +8,7 @@ class StoreSystemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isAdministrator();
+        return $this->user()->hasRole('administrator', 'directeur');
     }
 
     public function rules(): array

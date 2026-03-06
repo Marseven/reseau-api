@@ -14,12 +14,17 @@ class Equipement extends Model
         'equipement_code',
         'name',
         'type',
+        'classification',
+        'serial_number',
+        'fabricant',
+        'modele',
+        'connection_type',
         'description',
         'direction_in_out',
         'vlan',
         'ip_address',
         'coffret_id',
-        'status'
+        'status',
     ];
 
     public function coffret()
@@ -28,6 +33,11 @@ class Equipement extends Model
     }
 
     public function ports()
+    {
+        return $this->hasMany(Port::class, 'equipement_id');
+    }
+
+    public function connectedPorts()
     {
         return $this->hasMany(Port::class, 'connected_equipment_id');
     }

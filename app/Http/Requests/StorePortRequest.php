@@ -8,7 +8,7 @@ class StorePortRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isAdministrator();
+        return $this->user()->hasRole('administrator', 'directeur');
     }
 
     public function rules(): array
@@ -20,6 +20,10 @@ class StorePortRequest extends FormRequest
             'vlan' => 'nullable|string|max:255',
             'speed' => 'nullable|string|max:255',
             'connected_equipment_id' => 'nullable|exists:equipements,id',
+            'equipement_id' => 'nullable|exists:equipements,id',
+            'status' => 'sometimes|in:active,inactive,reserved',
+            'port_type' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
         ];
     }
 }

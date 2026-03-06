@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCoffretRequest extends FormRequest
+class StoreZoneRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,14 +14,13 @@ class StoreCoffretRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:zones,code',
             'name' => 'required|string|max:255',
-            'piece' => 'required|string',
-            'type' => 'nullable|string|max:255',
-            'long' => 'nullable|numeric',
-            'lat' => 'nullable|numeric',
+            'floor' => 'nullable|string|max:255',
+            'building' => 'nullable|string|max:255',
+            'site_id' => 'required|exists:sites,id',
             'status' => 'sometimes|in:active,inactive,maintenance',
-            'zone_id' => 'nullable|exists:zones,id',
+            'description' => 'nullable|string',
         ];
     }
 }

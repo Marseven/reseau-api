@@ -11,8 +11,13 @@ class Coffret extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'code', 'name', 'piece', 'long', 'lat', 'status'
+        'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'zone_id',
     ];
+
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class);
+    }
 
     public function equipments()
     {

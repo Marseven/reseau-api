@@ -8,7 +8,7 @@ class UpdateLiaisonRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isAdministrator();
+        return $this->user()->hasRole('administrator', 'directeur');
     }
 
     public function rules(): array
@@ -20,6 +20,9 @@ class UpdateLiaisonRequest extends FormRequest
             'media' => 'sometimes|string|max:255',
             'length' => 'nullable|integer',
             'status' => 'sometimes|boolean',
+            'from_port_id' => 'nullable|exists:ports,id',
+            'to_port_id' => 'nullable|exists:ports,id',
+            'status_label' => 'sometimes|in:active,inactive,maintenance',
         ];
     }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('vendor')->nullable();
             $table->text('endpoint')->nullable();
             $table->text('monitored_scope')->nullable();
-            $table->foreignId('coffret_id')->constrained('coffrets')->onDelete('cascade');
+            $table->foreignId('coffret_id')->nullable()->constrained('coffrets')->onDelete('cascade');
             $table->boolean('status')->default(true);
             $table->timestamps();
         });

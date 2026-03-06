@@ -8,7 +8,7 @@ class StoreMetricRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->hasRole('administrator', 'directeur');
     }
 
     public function rules(): array

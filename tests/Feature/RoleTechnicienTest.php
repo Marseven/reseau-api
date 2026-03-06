@@ -7,7 +7,9 @@ use App\Models\Equipement;
 use App\Models\Liaison;
 use App\Models\Metric;
 use App\Models\Port;
+use App\Models\Site;
 use App\Models\System;
+use App\Models\Zone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -87,13 +89,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Coffrets (all forbidden) ───────────────────────────────────
+    // ─── Coffrets (read allowed, write forbidden) ─────────────────
 
-    public function test_technicien_cannot_list_coffrets(): void
+    public function test_technicien_can_list_coffrets(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/coffrets');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_coffret(): void
@@ -105,13 +107,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_coffret(): void
+    public function test_technicien_can_show_coffret(): void
     {
         $coffret = Coffret::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/coffrets/{$coffret->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_coffret(): void
@@ -133,13 +135,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Equipements (all forbidden) ────────────────────────────────
+    // ─── Equipements (read allowed, write forbidden) ──────────────
 
-    public function test_technicien_cannot_list_equipements(): void
+    public function test_technicien_can_list_equipements(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/equipements');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_equipement(): void
@@ -154,13 +156,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_equipement(): void
+    public function test_technicien_can_show_equipement(): void
     {
         $equipement = Equipement::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/equipements/{$equipement->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_equipement(): void
@@ -182,13 +184,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Ports (all forbidden) ──────────────────────────────────────
+    // ─── Ports (read allowed, write forbidden) ────────────────────
 
-    public function test_technicien_cannot_list_ports(): void
+    public function test_technicien_can_list_ports(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/ports');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_port(): void
@@ -200,13 +202,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_port(): void
+    public function test_technicien_can_show_port(): void
     {
         $port = Port::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/ports/{$port->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_port(): void
@@ -228,13 +230,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Metrics (all forbidden) ────────────────────────────────────
+    // ─── Metrics (read allowed, write forbidden) ──────────────────
 
-    public function test_technicien_cannot_list_metrics(): void
+    public function test_technicien_can_list_metrics(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/metrics');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_metric(): void
@@ -248,13 +250,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_metric(): void
+    public function test_technicien_can_show_metric(): void
     {
         $metric = Metric::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/metrics/{$metric->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_metric(): void
@@ -276,13 +278,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Liaisons (all forbidden) ───────────────────────────────────
+    // ─── Liaisons (read allowed, write forbidden) ─────────────────
 
-    public function test_technicien_cannot_list_liaisons(): void
+    public function test_technicien_can_list_liaisons(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/liaisons');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_liaison(): void
@@ -298,13 +300,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_liaison(): void
+    public function test_technicien_can_show_liaison(): void
     {
         $liaison = Liaison::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/liaisons/{$liaison->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_liaison(): void
@@ -326,13 +328,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    // ─── Systems (all forbidden) ────────────────────────────────────
+    // ─── Systems (read allowed, write forbidden) ──────────────────
 
-    public function test_technicien_cannot_list_systems(): void
+    public function test_technicien_can_list_systems(): void
     {
         $response = $this->actingAs($this->technicien)->getJson('/api/v1/systems');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_store_system(): void
@@ -344,13 +346,13 @@ class RoleTechnicienTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_technicien_cannot_show_system(): void
+    public function test_technicien_can_show_system(): void
     {
         $system = System::factory()->create();
 
         $response = $this->actingAs($this->technicien)->getJson("/api/v1/systems/{$system->id}");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_technicien_cannot_update_system(): void
@@ -368,6 +370,120 @@ class RoleTechnicienTest extends TestCase
         $system = System::factory()->create();
 
         $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/systems/{$system->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Sites (read allowed, write forbidden) ────────────────────
+
+    public function test_technicien_can_list_sites(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/sites');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_site(): void
+    {
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/sites', [
+            'code' => 'SITE-T', 'name' => 'T',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/sites/{$site->id}", ['name' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Zones (read allowed, write forbidden) ────────────────────
+
+    public function test_technicien_can_list_zones(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/zones');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_zone(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/zones', [
+            'code' => 'ZONE-T', 'name' => 'T', 'site_id' => $site->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/zones/{$zone->id}", ['name' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Users (forbidden) ────────────────────────────────────────
+
+    public function test_technicien_cannot_list_users(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/users');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_store_user(): void
+    {
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/users', [
+            'name' => 'T', 'surname' => 'U', 'username' => 'tu',
+            'email' => 'tu@example.com', 'role' => 'user',
+            'password' => 'Password123!', 'password_confirmation' => 'Password123!',
+        ]);
 
         $response->assertStatus(403);
     }

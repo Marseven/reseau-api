@@ -17,6 +17,10 @@ class Port extends Model
         'vlan',
         'speed',
         'connected_equipment_id',
+        'equipement_id',
+        'status',
+        'port_type',
+        'description',
     ];
 
     protected function casts(): array
@@ -24,6 +28,11 @@ class Port extends Model
         return [
             'poe_enabled' => 'boolean',
         ];
+    }
+
+    public function equipement()
+    {
+        return $this->belongsTo(Equipement::class);
     }
 
     public function connectedEquipment()

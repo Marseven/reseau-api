@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('poe_enabled')->default(false);
             $table->string('vlan')->nullable();
             $table->string('speed')->nullable();
-            $table->foreignId('connected_equipment_id')->constrained('equipements')->nullable();
+            $table->foreignId('connected_equipment_id')->nullable()->constrained('equipements');
             $table->timestamps();
         });
     }

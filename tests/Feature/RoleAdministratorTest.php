@@ -7,7 +7,10 @@ use App\Models\Equipement;
 use App\Models\Liaison;
 use App\Models\Metric;
 use App\Models\Port;
+use App\Models\Site;
 use App\Models\System;
+use App\Models\User;
+use App\Models\Zone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -407,12 +410,7 @@ class RoleAdministratorTest extends TestCase
             ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
     }
 
-    /**
-     * Known bug: System model is missing coffret_id in $fillable
-     * and StoreSystemRequest doesn't validate it, but DB requires it.
-     * Store currently returns 500 due to NOT NULL constraint on coffret_id.
-     */
-    public function test_admin_store_system_fails_due_to_missing_coffret_id(): void
+    public function test_admin_can_store_system_without_coffret_id(): void
     {
         $data = [
             'name' => 'Admin NMS',
@@ -422,7 +420,8 @@ class RoleAdministratorTest extends TestCase
 
         $response = $this->actingAs($this->admin)->postJson('/api/v1/systems', $data);
 
-        $response->assertStatus(500);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('systems', ['name' => 'Admin NMS']);
     }
 
     public function test_admin_can_show_system(): void
@@ -493,5 +492,183 @@ class RoleAdministratorTest extends TestCase
         foreach ($response->json('data.data') as $item) {
             $this->assertEquals('100', $item['vlan']);
         }
+    }
+
+    // ─── Sites CRUD ────────────────────────────────────────────────
+
+    public function test_admin_can_list_sites(): void
+    {
+        Site::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/sites');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_site(): void
+    {
+        $data = [
+            'code' => 'SITE-ADM',
+            'name' => 'Admin Site',
+            'city' => 'Libreville',
+            'country' => 'Gabon',
+            'status' => 'active',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/sites', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('sites', ['code' => 'SITE-ADM']);
+    }
+
+    public function test_admin_can_show_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $site->id);
+    }
+
+    public function test_admin_can_update_site(): void
+    {
+        $site = Site::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/sites/{$site->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('sites', ['id' => $site->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_destroy_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('sites', ['id' => $site->id]);
+    }
+
+    // ─── Zones CRUD ────────────────────────────────────────────────
+
+    public function test_admin_can_list_zones(): void
+    {
+        Zone::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/zones');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_zone(): void
+    {
+        $site = Site::factory()->create();
+
+        $data = [
+            'code' => 'ZONE-ADM',
+            'name' => 'Admin Zone',
+            'site_id' => $site->id,
+            'status' => 'active',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/zones', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('zones', ['code' => 'ZONE-ADM']);
+    }
+
+    public function test_admin_can_show_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $zone->id);
+    }
+
+    public function test_admin_can_update_zone(): void
+    {
+        $zone = Zone::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/zones/{$zone->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('zones', ['id' => $zone->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_destroy_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('zones', ['id' => $zone->id]);
+    }
+
+    // ─── Users CRUD (admin only) ───────────────────────────────────
+
+    public function test_admin_can_list_users(): void
+    {
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/users');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_user(): void
+    {
+        $data = [
+            'name' => 'New',
+            'surname' => 'User',
+            'username' => 'newuser',
+            'email' => 'new@example.com',
+            'role' => 'technicien',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/users', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('users', ['username' => 'newuser']);
+    }
+
+    public function test_admin_can_show_user(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/users/{$user->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $user->id);
+    }
+
+    public function test_admin_can_update_user(): void
+    {
+        $user = User::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/users/{$user->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_deactivate_user(): void
+    {
+        $user = User::factory()->create(['is_active' => true]);
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/users/{$user->id}");
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'is_active' => false]);
     }
 }

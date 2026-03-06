@@ -12,7 +12,7 @@ class CoffretController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Coffret::with('equipments', 'metrics');
+        $query = Coffret::with('equipments', 'metrics', 'zone');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -36,7 +36,7 @@ class CoffretController extends Controller
 
     public function show(Coffret $coffret)
     {
-        return ApiResponse::success($coffret->load('equipments', 'metrics'));
+        return ApiResponse::success($coffret->load('equipments', 'metrics', 'zone'));
     }
 
     public function update(UpdateCoffretRequest $request, Coffret $coffret)

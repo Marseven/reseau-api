@@ -7,7 +7,9 @@ use App\Models\Equipement;
 use App\Models\Liaison;
 use App\Models\Metric;
 use App\Models\Port;
+use App\Models\Site;
 use App\Models\System;
+use App\Models\Zone;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -87,7 +89,7 @@ class RoleDirecteurTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // ─── Coffrets: index + show (allowed) ───────────────────────────
+    // ─── Coffrets: full CRUD (allowed) ─────────────────────────────
 
     public function test_directeur_can_list_coffrets(): void
     {
@@ -109,32 +111,28 @@ class RoleDirecteurTest extends TestCase
             ->assertJsonPath('data.id', $coffret->id);
     }
 
-    // ─── Coffrets: store + update (forbidden by isAdministrator) ────
-
-    public function test_directeur_cannot_store_coffret(): void
+    public function test_directeur_can_store_coffret(): void
     {
         $response = $this->actingAs($this->directeur)->postJson('/api/v1/coffrets', [
             'code' => 'COF-DIR',
             'name' => 'Dir Coffret',
             'piece' => 'Salle D',
-            'long' => 2.3,
-            'lat' => 48.8,
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('coffrets', ['code' => 'COF-DIR']);
     }
 
-    public function test_directeur_cannot_update_coffret(): void
+    public function test_directeur_can_update_coffret(): void
     {
         $coffret = Coffret::factory()->create();
 
         $response = $this->actingAs($this->directeur)
             ->putJson("/api/v1/coffrets/{$coffret->id}", ['name' => 'Updated']);
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('coffrets', ['id' => $coffret->id, 'name' => 'Updated']);
     }
-
-    // ─── Coffrets: destroy (allowed - no FormRequest) ───────────────
 
     public function test_directeur_can_destroy_coffret(): void
     {
@@ -146,7 +144,7 @@ class RoleDirecteurTest extends TestCase
         $this->assertSoftDeleted('coffrets', ['id' => $coffret->id]);
     }
 
-    // ─── Equipements: index + show (allowed) ────────────────────────
+    // ─── Equipements: full CRUD (allowed) ──────────────────────────
 
     public function test_directeur_can_list_equipements(): void
     {
@@ -166,9 +164,7 @@ class RoleDirecteurTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // ─── Equipements: store + update (forbidden) ────────────────────
-
-    public function test_directeur_cannot_store_equipement(): void
+    public function test_directeur_can_store_equipement(): void
     {
         $coffret = Coffret::factory()->create();
 
@@ -180,20 +176,20 @@ class RoleDirecteurTest extends TestCase
             'status' => 'active',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('equipements', ['equipement_code' => 'EQ-DIR-001']);
     }
 
-    public function test_directeur_cannot_update_equipement(): void
+    public function test_directeur_can_update_equipement(): void
     {
         $equipement = Equipement::factory()->create();
 
         $response = $this->actingAs($this->directeur)
             ->putJson("/api/v1/equipements/{$equipement->id}", ['name' => 'Updated']);
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('equipements', ['id' => $equipement->id, 'name' => 'Updated']);
     }
-
-    // ─── Equipements: destroy (allowed) ─────────────────────────────
 
     public function test_directeur_can_destroy_equipement(): void
     {
@@ -205,7 +201,7 @@ class RoleDirecteurTest extends TestCase
         $this->assertSoftDeleted('equipements', ['id' => $equipement->id]);
     }
 
-    // ─── Ports: index + show (allowed) ──────────────────────────────
+    // ─── Ports: full CRUD (allowed) ────────────────────────────────
 
     public function test_directeur_can_list_ports(): void
     {
@@ -225,9 +221,7 @@ class RoleDirecteurTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // ─── Ports: store + update (forbidden) ──────────────────────────
-
-    public function test_directeur_cannot_store_port(): void
+    public function test_directeur_can_store_port(): void
     {
         $response = $this->actingAs($this->directeur)->postJson('/api/v1/ports', [
             'port_label' => 'P-DIR-001',
@@ -235,20 +229,20 @@ class RoleDirecteurTest extends TestCase
             'poe_enabled' => true,
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('ports', ['port_label' => 'P-DIR-001']);
     }
 
-    public function test_directeur_cannot_update_port(): void
+    public function test_directeur_can_update_port(): void
     {
         $port = Port::factory()->create();
 
         $response = $this->actingAs($this->directeur)
             ->putJson("/api/v1/ports/{$port->id}", ['device_name' => 'Updated']);
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('ports', ['id' => $port->id, 'device_name' => 'Updated']);
     }
-
-    // ─── Ports: destroy (allowed) ───────────────────────────────────
 
     public function test_directeur_can_destroy_port(): void
     {
@@ -260,7 +254,7 @@ class RoleDirecteurTest extends TestCase
         $this->assertSoftDeleted('ports', ['id' => $port->id]);
     }
 
-    // ─── Metrics: full CRUD (authorize = true) ──────────────────────
+    // ─── Metrics: full CRUD (allowed) ──────────────────────────────
 
     public function test_directeur_can_list_metrics(): void
     {
@@ -316,7 +310,7 @@ class RoleDirecteurTest extends TestCase
         $this->assertSoftDeleted('metrics', ['id' => $metric->id]);
     }
 
-    // ─── Liaisons: index + show (allowed) ───────────────────────────
+    // ─── Liaisons: full CRUD (allowed) ─────────────────────────────
 
     public function test_directeur_can_list_liaisons(): void
     {
@@ -336,9 +330,7 @@ class RoleDirecteurTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // ─── Liaisons: store + update (forbidden) ───────────────────────
-
-    public function test_directeur_cannot_store_liaison(): void
+    public function test_directeur_can_store_liaison(): void
     {
         $eq1 = Equipement::factory()->create();
         $eq2 = Equipement::factory()->create();
@@ -351,20 +343,20 @@ class RoleDirecteurTest extends TestCase
             'status' => true,
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('liaisons', ['label' => 'Dir Liaison']);
     }
 
-    public function test_directeur_cannot_update_liaison(): void
+    public function test_directeur_can_update_liaison(): void
     {
         $liaison = Liaison::factory()->create();
 
         $response = $this->actingAs($this->directeur)
             ->putJson("/api/v1/liaisons/{$liaison->id}", ['label' => 'Updated']);
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('liaisons', ['id' => $liaison->id, 'label' => 'Updated']);
     }
-
-    // ─── Liaisons: destroy (allowed) ────────────────────────────────
 
     public function test_directeur_can_destroy_liaison(): void
     {
@@ -376,7 +368,7 @@ class RoleDirecteurTest extends TestCase
         $this->assertSoftDeleted('liaisons', ['id' => $liaison->id]);
     }
 
-    // ─── Systems: index + show (allowed) ────────────────────────────
+    // ─── Systems: full CRUD (allowed) ──────────────────────────────
 
     public function test_directeur_can_list_systems(): void
     {
@@ -396,9 +388,7 @@ class RoleDirecteurTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // ─── Systems: store + update (forbidden) ────────────────────────
-
-    public function test_directeur_cannot_store_system(): void
+    public function test_directeur_can_store_system(): void
     {
         $response = $this->actingAs($this->directeur)->postJson('/api/v1/systems', [
             'name' => 'Dir NMS',
@@ -406,20 +396,20 @@ class RoleDirecteurTest extends TestCase
             'status' => true,
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('systems', ['name' => 'Dir NMS']);
     }
 
-    public function test_directeur_cannot_update_system(): void
+    public function test_directeur_can_update_system(): void
     {
         $system = System::factory()->create();
 
         $response = $this->actingAs($this->directeur)
             ->putJson("/api/v1/systems/{$system->id}", ['name' => 'Updated']);
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('systems', ['id' => $system->id, 'name' => 'Updated']);
     }
-
-    // ─── Systems: destroy (allowed) ─────────────────────────────────
 
     public function test_directeur_can_destroy_system(): void
     {
@@ -429,5 +419,133 @@ class RoleDirecteurTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSoftDeleted('systems', ['id' => $system->id]);
+    }
+
+    // ─── Sites: full CRUD (allowed) ────────────────────────────────
+
+    public function test_directeur_can_list_sites(): void
+    {
+        Site::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/sites');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_site(): void
+    {
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/sites', [
+            'code' => 'SITE-DIR',
+            'name' => 'Dir Site',
+            'city' => 'Moanda',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('sites', ['code' => 'SITE-DIR']);
+    }
+
+    public function test_directeur_can_show_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/sites/{$site->id}", ['name' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('sites', ['id' => $site->id, 'name' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_site(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/sites/{$site->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('sites', ['id' => $site->id]);
+    }
+
+    // ─── Zones: full CRUD (allowed) ────────────────────────────────
+
+    public function test_directeur_can_list_zones(): void
+    {
+        Zone::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/zones');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_zone(): void
+    {
+        $site = Site::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/zones', [
+            'code' => 'ZONE-DIR',
+            'name' => 'Dir Zone',
+            'site_id' => $site->id,
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('zones', ['code' => 'ZONE-DIR']);
+    }
+
+    public function test_directeur_can_show_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/zones/{$zone->id}", ['name' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('zones', ['id' => $zone->id, 'name' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_zone(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('zones', ['id' => $zone->id]);
+    }
+
+    // ─── Users: forbidden ──────────────────────────────────────────
+
+    public function test_directeur_cannot_list_users(): void
+    {
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/users');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_directeur_cannot_store_user(): void
+    {
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/users', [
+            'name' => 'T', 'surname' => 'U', 'username' => 'tu',
+            'email' => 'tu@example.com', 'role' => 'user',
+            'password' => 'Password123!', 'password_confirmation' => 'Password123!',
+        ]);
+
+        $response->assertStatus(403);
     }
 }

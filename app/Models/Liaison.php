@@ -17,6 +17,9 @@ class Liaison extends Model
         'media',
         'length',
         'status',
+        'from_port_id',
+        'to_port_id',
+        'status_label',
     ];
 
     public function fromEquipement()
@@ -27,5 +30,15 @@ class Liaison extends Model
     public function toEquipement()
     {
         return $this->belongsTo(Equipement::class, 'to');
+    }
+
+    public function fromPort()
+    {
+        return $this->belongsTo(Port::class, 'from_port_id');
+    }
+
+    public function toPort()
+    {
+        return $this->belongsTo(Port::class, 'to_port_id');
     }
 }

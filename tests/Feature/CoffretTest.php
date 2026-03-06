@@ -126,9 +126,18 @@ class CoffretTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_unauthorized_role_returns_403(): void
+    public function test_user_can_read_coffrets(): void
     {
         $response = $this->actingAs($this->user)->getJson('/api/v1/coffrets');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_user_cannot_write_coffrets(): void
+    {
+        $response = $this->actingAs($this->user)->postJson('/api/v1/coffrets', [
+            'code' => 'CAB-TEST', 'name' => 'Test', 'piece' => 'R-1',
+        ]);
 
         $response->assertStatus(403);
     }

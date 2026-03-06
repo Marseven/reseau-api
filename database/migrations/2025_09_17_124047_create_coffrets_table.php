@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('piece');
             $table->float('long')->nullable();
             $table->float('lat')->nullable();
-            $table->string('status');
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

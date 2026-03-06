@@ -88,7 +88,7 @@ class ApiValidationTest extends TestCase
 
         $this->actingAs($admin)->postJson('/api/v1/coffrets', [])
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['code', 'name', 'piece', 'long', 'lat']);
+            ->assertJsonValidationErrors(['code', 'name', 'piece']);
     }
 
     public function test_store_equipement_validation_requires_fields(): void

@@ -20,6 +20,7 @@ class User extends Authenticatable
         'email',
         'is_active',
         'password',
+        'site_id',
         'two_factor_secret',
         'two_factor_enabled',
         'two_factor_recovery_codes',
@@ -46,6 +47,16 @@ class User extends Authenticatable
     public function isAdministrator(): bool
     {
         return $this->role === 'administrator';
+    }
+
+    public function hasRole(string ...$roles): bool
+    {
+        return in_array($this->role, $roles);
+    }
+
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
     }
 
     public function hasTwoFactorEnabled(): bool
