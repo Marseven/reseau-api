@@ -20,6 +20,10 @@ return new class extends Migration
 
         foreach ($indexes as $table => $columns) {
             foreach ($columns as $column) {
+                if (!Schema::hasColumn($table, $column)) {
+                    continue;
+                }
+
                 $indexName = "{$table}_{$column}_index";
                 if (!$this->indexExists($table, $indexName)) {
                     Schema::table($table, function (Blueprint $blueprint) use ($column) {
@@ -32,36 +36,25 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('coffrets', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-            $table->dropIndex(['name']);
-        });
+        $indexes = [
+            'coffrets' => ['status', 'name'],
+            'equipements' => ['status', 'name', 'vlan'],
+            'ports' => ['vlan', 'port_label'],
+            'metrics' => ['status', 'name'],
+            'liaisons' => ['status'],
+            'systems' => ['status', 'name', 'type'],
+        ];
 
-        Schema::table('equipements', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-            $table->dropIndex(['name']);
-            $table->dropIndex(['vlan']);
-        });
-
-        Schema::table('ports', function (Blueprint $table) {
-            $table->dropIndex(['vlan']);
-            $table->dropIndex(['port_label']);
-        });
-
-        Schema::table('metrics', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-            $table->dropIndex(['name']);
-        });
-
-        Schema::table('liaisons', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-        });
-
-        Schema::table('systems', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-            $table->dropIndex(['name']);
-            $table->dropIndex(['type']);
-        });
+        foreach ($indexes as $table => $columns) {
+            foreach ($columns as $column) {
+                $indexName = "{$table}_{$column}_index";
+                if ($this->indexExists($table, $indexName)) {
+                    Schema::table($table, function (Blueprint $blueprint) use ($column) {
+                        $blueprint->dropIndex([$column]);
+                    });
+                }
+            }
+        }
     }
 
     private function indexExists(string $table, string $indexName): bool
@@ -73,7 +66,7 @@ return new class extends Migration
             return count($result) > 0;
         }
 
-        // SQLite: query the index list
+        // SQLite
         $result = DB::select("PRAGMA index_list(`{$table}`)");
         foreach ($result as $index) {
             if ($index->name === $indexName) {
