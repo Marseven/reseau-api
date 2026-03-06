@@ -9,7 +9,12 @@ use App\Models\Metric;
 use App\Models\Port;
 use App\Models\Site;
 use App\Models\System;
+use App\Models\User;
 use App\Models\Zone;
+use App\Models\Batiment;
+use App\Models\Salle;
+use App\Models\Vlan;
+use App\Models\Maintenance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -527,6 +532,226 @@ class RoleDirecteurTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSoftDeleted('zones', ['id' => $zone->id]);
+    }
+
+    // ─── Batiments: full CRUD (allowed) ────────────────────────────
+
+    public function test_directeur_can_list_batiments(): void
+    {
+        Batiment::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/batiments');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_batiment(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/batiments', [
+            'code' => 'BAT-DIR',
+            'name' => 'Dir Batiment',
+            'zone_id' => $zone->id,
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('batiments', ['code' => 'BAT-DIR']);
+    }
+
+    public function test_directeur_can_show_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/batiments/{$batiment->id}", ['name' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('batiments', ['id' => $batiment->id, 'name' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('batiments', ['id' => $batiment->id]);
+    }
+
+    // ─── Salles: full CRUD (allowed) ────────────────────────────────
+
+    public function test_directeur_can_list_salles(): void
+    {
+        Salle::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/salles');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_salle(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/salles', [
+            'code' => 'SAL-DIR',
+            'name' => 'Dir Salle',
+            'batiment_id' => $batiment->id,
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('salles', ['code' => 'SAL-DIR']);
+    }
+
+    public function test_directeur_can_show_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/salles/{$salle->id}", ['name' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('salles', ['id' => $salle->id, 'name' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('salles', ['id' => $salle->id]);
+    }
+
+    // ─── VLANs: full CRUD (allowed) ────────────────────────────────
+
+    public function test_directeur_can_list_vlans(): void
+    {
+        Vlan::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/vlans');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_vlan(): void
+    {
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/vlans', [
+            'vlan_id' => 600,
+            'name' => 'Dir VLAN',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('vlans', ['vlan_id' => 600]);
+    }
+
+    public function test_directeur_can_show_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/vlans/{$vlan->id}", ['name' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('vlans', ['id' => $vlan->id, 'name' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('vlans', ['id' => $vlan->id]);
+    }
+
+    // ─── Maintenances: full CRUD (allowed) ──────────────────────────
+
+    public function test_directeur_can_list_maintenances(): void
+    {
+        Maintenance::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->directeur)->getJson('/api/v1/maintenances');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_store_maintenance(): void
+    {
+        $technicien = User::factory()->create(['role' => 'technicien', 'is_active' => true]);
+
+        $response = $this->actingAs($this->directeur)->postJson('/api/v1/maintenances', [
+            'code' => 'MAINT-DIR',
+            'title' => 'Dir Maintenance',
+            'type' => 'preventive',
+            'priority' => 'basse',
+            'technicien_id' => $technicien->id,
+            'scheduled_date' => '2026-04-01',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('maintenances', ['code' => 'MAINT-DIR']);
+    }
+
+    public function test_directeur_can_show_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->getJson("/api/v1/maintenances/{$maintenance->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_directeur_can_update_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->directeur)
+            ->putJson("/api/v1/maintenances/{$maintenance->id}", ['title' => 'Updated']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('maintenances', ['id' => $maintenance->id, 'title' => 'Updated']);
+    }
+
+    public function test_directeur_can_destroy_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->directeur)->deleteJson("/api/v1/maintenances/{$maintenance->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('maintenances', ['id' => $maintenance->id]);
     }
 
     // ─── Users: forbidden ──────────────────────────────────────────

@@ -6,23 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Zone extends Model
+class Salle extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'code', 'name', 'floor', 'building', 'site_id',
+        'code', 'name', 'batiment_id', 'floor', 'type',
         'status', 'description',
     ];
 
-    public function site()
+    public function batiment()
     {
-        return $this->belongsTo(Site::class);
-    }
-
-    public function batiments()
-    {
-        return $this->hasMany(Batiment::class);
+        return $this->belongsTo(Batiment::class);
     }
 
     public function coffrets()

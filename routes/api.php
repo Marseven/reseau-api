@@ -11,6 +11,10 @@ use App\Http\Controllers\LiaisonController;
 use App\Http\Controllers\SystemController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\ZoneController;
+use App\Http\Controllers\BatimentController;
+use App\Http\Controllers\SalleController;
+use App\Http\Controllers\VlanController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +65,14 @@ Route::prefix('v1')->group(function () {
             Route::get('/metrics/{metric}', [MetricController::class, 'show']);
             Route::get('/systems', [SystemController::class, 'index']);
             Route::get('/systems/{system}', [SystemController::class, 'show']);
+            Route::get('/batiments', [BatimentController::class, 'index']);
+            Route::get('/batiments/{batiment}', [BatimentController::class, 'show']);
+            Route::get('/salles', [SalleController::class, 'index']);
+            Route::get('/salles/{salle}', [SalleController::class, 'show']);
+            Route::get('/vlans', [VlanController::class, 'index']);
+            Route::get('/vlans/{vlan}', [VlanController::class, 'show']);
+            Route::get('/maintenances', [MaintenanceController::class, 'index']);
+            Route::get('/maintenances/{maintenance}', [MaintenanceController::class, 'show']);
         });
 
         // WRITE access for admin + directeur
@@ -103,6 +115,22 @@ Route::prefix('v1')->group(function () {
             Route::post('/systems', [SystemController::class, 'store']);
             Route::put('/systems/{system}', [SystemController::class, 'update']);
             Route::delete('/systems/{system}', [SystemController::class, 'destroy']);
+
+            Route::post('/batiments', [BatimentController::class, 'store']);
+            Route::put('/batiments/{batiment}', [BatimentController::class, 'update']);
+            Route::delete('/batiments/{batiment}', [BatimentController::class, 'destroy']);
+
+            Route::post('/salles', [SalleController::class, 'store']);
+            Route::put('/salles/{salle}', [SalleController::class, 'update']);
+            Route::delete('/salles/{salle}', [SalleController::class, 'destroy']);
+
+            Route::post('/vlans', [VlanController::class, 'store']);
+            Route::put('/vlans/{vlan}', [VlanController::class, 'update']);
+            Route::delete('/vlans/{vlan}', [VlanController::class, 'destroy']);
+
+            Route::post('/maintenances', [MaintenanceController::class, 'store']);
+            Route::put('/maintenances/{maintenance}', [MaintenanceController::class, 'update']);
+            Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy']);
         });
 
         // USER management - admin only

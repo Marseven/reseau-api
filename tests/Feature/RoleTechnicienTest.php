@@ -9,7 +9,12 @@ use App\Models\Metric;
 use App\Models\Port;
 use App\Models\Site;
 use App\Models\System;
+use App\Models\User;
 use App\Models\Zone;
+use App\Models\Batiment;
+use App\Models\Salle;
+use App\Models\Vlan;
+use App\Models\Maintenance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -464,6 +469,198 @@ class RoleTechnicienTest extends TestCase
         $zone = Zone::factory()->create();
 
         $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/zones/{$zone->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Batiments (read allowed, write forbidden) ──────────────
+
+    public function test_technicien_can_list_batiments(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/batiments');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_batiment(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/batiments', [
+            'code' => 'BAT-T', 'name' => 'T', 'zone_id' => $zone->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/batiments/{$batiment->id}", ['name' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Salles (read allowed, write forbidden) ────────────────────
+
+    public function test_technicien_can_list_salles(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/salles');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_salle(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/salles', [
+            'code' => 'SAL-T', 'name' => 'T', 'batiment_id' => $batiment->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/salles/{$salle->id}", ['name' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── VLANs (read allowed, write forbidden) ─────────────────────
+
+    public function test_technicien_can_list_vlans(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/vlans');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_vlan(): void
+    {
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/vlans', [
+            'vlan_id' => 999, 'name' => 'T',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/vlans/{$vlan->id}", ['name' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(403);
+    }
+
+    // ─── Maintenances (read allowed, write forbidden) ──────────────
+
+    public function test_technicien_can_list_maintenances(): void
+    {
+        $response = $this->actingAs($this->technicien)->getJson('/api/v1/maintenances');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_can_show_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->getJson("/api/v1/maintenances/{$maintenance->id}");
+
+        $response->assertStatus(200);
+    }
+
+    public function test_technicien_cannot_store_maintenance(): void
+    {
+        $technicien = User::factory()->create(['role' => 'technicien']);
+
+        $response = $this->actingAs($this->technicien)->postJson('/api/v1/maintenances', [
+            'code' => 'MAINT-T', 'title' => 'T', 'type' => 'preventive',
+            'priority' => 'basse', 'technicien_id' => $technicien->id,
+            'scheduled_date' => '2026-04-01',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_update_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->technicien)
+            ->putJson("/api/v1/maintenances/{$maintenance->id}", ['title' => 'X']);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_technicien_cannot_destroy_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->technicien)->deleteJson("/api/v1/maintenances/{$maintenance->id}");
 
         $response->assertStatus(403);
     }

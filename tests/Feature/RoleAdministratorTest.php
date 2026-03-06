@@ -11,6 +11,10 @@ use App\Models\Site;
 use App\Models\System;
 use App\Models\User;
 use App\Models\Zone;
+use App\Models\Batiment;
+use App\Models\Salle;
+use App\Models\Vlan;
+use App\Models\Maintenance;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\CreatesTestUsers;
@@ -611,6 +615,245 @@ class RoleAdministratorTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSoftDeleted('zones', ['id' => $zone->id]);
+    }
+
+    // ─── Batiments CRUD ─────────────────────────────────────────────
+
+    public function test_admin_can_list_batiments(): void
+    {
+        Batiment::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/batiments');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_batiment(): void
+    {
+        $zone = Zone::factory()->create();
+
+        $data = [
+            'code' => 'BAT-ADM',
+            'name' => 'Admin Batiment',
+            'zone_id' => $zone->id,
+            'status' => 'active',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/batiments', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('batiments', ['code' => 'BAT-ADM']);
+    }
+
+    public function test_admin_can_show_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $batiment->id);
+    }
+
+    public function test_admin_can_update_batiment(): void
+    {
+        $batiment = Batiment::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/batiments/{$batiment->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('batiments', ['id' => $batiment->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_destroy_batiment(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/batiments/{$batiment->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('batiments', ['id' => $batiment->id]);
+    }
+
+    // ─── Salles CRUD ────────────────────────────────────────────────
+
+    public function test_admin_can_list_salles(): void
+    {
+        Salle::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/salles');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_salle(): void
+    {
+        $batiment = Batiment::factory()->create();
+
+        $data = [
+            'code' => 'SAL-ADM',
+            'name' => 'Admin Salle',
+            'batiment_id' => $batiment->id,
+            'status' => 'active',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/salles', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('salles', ['code' => 'SAL-ADM']);
+    }
+
+    public function test_admin_can_show_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $salle->id);
+    }
+
+    public function test_admin_can_update_salle(): void
+    {
+        $salle = Salle::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/salles/{$salle->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('salles', ['id' => $salle->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_destroy_salle(): void
+    {
+        $salle = Salle::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/salles/{$salle->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('salles', ['id' => $salle->id]);
+    }
+
+    // ─── VLANs CRUD ────────────────────────────────────────────────
+
+    public function test_admin_can_list_vlans(): void
+    {
+        Vlan::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/vlans');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_vlan(): void
+    {
+        $data = [
+            'vlan_id' => 500,
+            'name' => 'Admin VLAN',
+            'status' => 'active',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/vlans', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('vlans', ['vlan_id' => 500]);
+    }
+
+    public function test_admin_can_show_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $vlan->id);
+    }
+
+    public function test_admin_can_update_vlan(): void
+    {
+        $vlan = Vlan::factory()->create(['name' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/vlans/{$vlan->id}", ['name' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('vlans', ['id' => $vlan->id, 'name' => 'New']);
+    }
+
+    public function test_admin_can_destroy_vlan(): void
+    {
+        $vlan = Vlan::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/vlans/{$vlan->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('vlans', ['id' => $vlan->id]);
+    }
+
+    // ─── Maintenances CRUD ──────────────────────────────────────────
+
+    public function test_admin_can_list_maintenances(): void
+    {
+        Maintenance::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->admin)->getJson('/api/v1/maintenances');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['status', 'data' => ['data'], 'message']);
+    }
+
+    public function test_admin_can_store_maintenance(): void
+    {
+        $technicien = User::factory()->create(['role' => 'technicien', 'is_active' => true]);
+
+        $data = [
+            'code' => 'MAINT-ADM',
+            'title' => 'Admin Maintenance',
+            'type' => 'preventive',
+            'priority' => 'moyenne',
+            'technicien_id' => $technicien->id,
+            'scheduled_date' => '2026-04-01',
+        ];
+
+        $response = $this->actingAs($this->admin)->postJson('/api/v1/maintenances', $data);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('maintenances', ['code' => 'MAINT-ADM']);
+    }
+
+    public function test_admin_can_show_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->admin)->getJson("/api/v1/maintenances/{$maintenance->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $maintenance->id);
+    }
+
+    public function test_admin_can_update_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create(['title' => 'Old']);
+
+        $response = $this->actingAs($this->admin)
+            ->putJson("/api/v1/maintenances/{$maintenance->id}", ['title' => 'New']);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('maintenances', ['id' => $maintenance->id, 'title' => 'New']);
+    }
+
+    public function test_admin_can_destroy_maintenance(): void
+    {
+        $maintenance = Maintenance::factory()->create();
+
+        $response = $this->actingAs($this->admin)->deleteJson("/api/v1/maintenances/{$maintenance->id}");
+
+        $response->assertStatus(200);
+        $this->assertSoftDeleted('maintenances', ['id' => $maintenance->id]);
     }
 
     // ─── Users CRUD (admin only) ───────────────────────────────────

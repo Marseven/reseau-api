@@ -10,6 +10,10 @@ use App\Models\Liaison;
 use App\Models\System;
 use App\Models\Site;
 use App\Models\Zone;
+use App\Models\Batiment;
+use App\Models\Salle;
+use App\Models\Vlan;
+use App\Models\Maintenance;
 use App\Helpers\ApiResponse;
 use Illuminate\Support\Facades\Cache;
 
@@ -57,6 +61,27 @@ class StatistiqueController extends Controller
                     'total' => System::count(),
                     'active' => System::where('status', true)->count(),
                     'inactive' => System::where('status', false)->count(),
+                ],
+                'batiments' => [
+                    'total' => Batiment::count(),
+                    'active' => Batiment::where('status', 'active')->count(),
+                    'inactive' => Batiment::where('status', '!=', 'active')->count(),
+                ],
+                'salles' => [
+                    'total' => Salle::count(),
+                    'active' => Salle::where('status', 'active')->count(),
+                    'inactive' => Salle::where('status', '!=', 'active')->count(),
+                ],
+                'vlans' => [
+                    'total' => Vlan::count(),
+                    'active' => Vlan::where('status', 'active')->count(),
+                    'inactive' => Vlan::where('status', 'inactive')->count(),
+                ],
+                'maintenances' => [
+                    'total' => Maintenance::count(),
+                    'planifiee' => Maintenance::where('status', 'planifiee')->count(),
+                    'en_cours' => Maintenance::where('status', 'en_cours')->count(),
+                    'terminee' => Maintenance::where('status', 'terminee')->count(),
                 ],
             ];
         });

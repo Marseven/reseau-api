@@ -12,7 +12,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SiteSeeder::class,
             ZoneSeeder::class,
+            BatimentSeeder::class,
+            SalleSeeder::class,
             CoffretSeeder::class,
+            VlanSeeder::class,
+            MaintenanceSeeder::class,
         ]);
     }
 }
