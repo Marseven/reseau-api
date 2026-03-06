@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\StatistiqueController;
 use App\Http\Controllers\CoffretController;
 use App\Http\Controllers\EquipementsController;
@@ -22,10 +23,22 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/auth/login', [AuthController::class, 'login']);
 
+    // 2FA challenge (public, rate-limited)
+    Route::middleware('throttle:5,1')->group(function () {
+        Route::post('/auth/2fa/challenge', [AuthController::class, 'verifyTwoFactorLogin']);
+    });
+
     Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
+
+        // 2FA management (authenticated)
+        Route::post('/auth/2fa/setup', [TwoFactorController::class, 'setup']);
+        Route::post('/auth/2fa/verify', [TwoFactorController::class, 'verify']);
+        Route::post('/auth/2fa/disable', [TwoFactorController::class, 'disable']);
+        Route::get('/auth/2fa/recovery-codes', [TwoFactorController::class, 'recoveryCodes']);
+        Route::post('/auth/2fa/recovery-codes/regenerate', [TwoFactorController::class, 'regenerateRecoveryCodes']);
 
         Route::middleware('role:administrator,directeur')->group(function () {
             // Statistiques

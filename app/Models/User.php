@@ -2,22 +2,15 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Testing\Fluent\Concerns\Has;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'surname',
@@ -27,34 +20,54 @@ class User extends Authenticatable
         'email',
         'is_active',
         'password',
+        'two_factor_secret',
+        'two_factor_enabled',
+        'two_factor_recovery_codes',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_enabled' => 'boolean',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted',
         ];
     }
-
 
     public function isAdministrator(): bool
     {
         return $this->role === 'administrator';
+    }
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_enabled && $this->two_factor_secret;
+    }
+
+    public function getDecryptedRecoveryCodes(): array
+    {
+        if (!$this->two_factor_recovery_codes) {
+            return [];
+        }
+
+        return json_decode($this->two_factor_recovery_codes, true) ?? [];
+    }
+
+    public function replaceRecoveryCode(string $usedCode): void
+    {
+        $codes = $this->getDecryptedRecoveryCodes();
+        $codes = array_values(array_filter($codes, fn($code) => $code !== $usedCode));
+
+        $this->two_factor_recovery_codes = json_encode($codes);
+        $this->save();
     }
 }
