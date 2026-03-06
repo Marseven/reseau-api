@@ -37,7 +37,7 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request)
     {
-        $identifier = $request->username;
+        $identifier = $request->email ?? $request->username;
         $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
 
         $user = User::where(function ($query) use ($identifier, $isEmail) {
