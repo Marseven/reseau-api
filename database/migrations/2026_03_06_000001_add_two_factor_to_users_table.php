@@ -9,16 +9,30 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('two_factor_secret', 64)->nullable()->after('password');
-            $table->boolean('two_factor_enabled')->default(false)->after('two_factor_secret');
-            $table->text('two_factor_recovery_codes')->nullable()->after('two_factor_enabled');
+            if (!Schema::hasColumn('users', 'two_factor_secret')) {
+                $table->string('two_factor_secret', 64)->nullable()->after('password');
+            }
+            if (!Schema::hasColumn('users', 'two_factor_enabled')) {
+                $table->boolean('two_factor_enabled')->default(false)->after('password');
+            }
+            if (!Schema::hasColumn('users', 'two_factor_recovery_codes')) {
+                $table->text('two_factor_recovery_codes')->nullable()->after('password');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['two_factor_secret', 'two_factor_enabled', 'two_factor_recovery_codes']);
+            $columns = [];
+            foreach (['two_factor_secret', 'two_factor_enabled', 'two_factor_recovery_codes'] as $col) {
+                if (Schema::hasColumn('users', $col)) {
+                    $columns[] = $col;
+                }
+            }
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 };

@@ -11,9 +11,11 @@ return new class extends Migration
         $tables = ['coffrets', 'equipements', 'ports', 'metrics', 'liaisons', 'systems'];
 
         foreach ($tables as $table) {
-            Schema::table($table, function (Blueprint $blueprint) {
-                $blueprint->softDeletes();
-            });
+            if (!Schema::hasColumn($table, 'deleted_at')) {
+                Schema::table($table, function (Blueprint $blueprint) {
+                    $blueprint->softDeletes();
+                });
+            }
         }
     }
 
@@ -22,9 +24,11 @@ return new class extends Migration
         $tables = ['coffrets', 'equipements', 'ports', 'metrics', 'liaisons', 'systems'];
 
         foreach ($tables as $table) {
-            Schema::table($table, function (Blueprint $blueprint) {
-                $blueprint->dropSoftDeletes();
-            });
+            if (Schema::hasColumn($table, 'deleted_at')) {
+                Schema::table($table, function (Blueprint $blueprint) {
+                    $blueprint->dropSoftDeletes();
+                });
+            }
         }
     }
 };
