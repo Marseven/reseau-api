@@ -9,10 +9,32 @@ use App\Http\Requests\TwoFactorLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
+use OpenApi\Attributes as OA;
 use PragmaRX\Google2FA\Google2FA;
 
 class AuthController extends Controller
 {
+    #[OA\Post(
+        path: '/auth/login',
+        summary: 'Connexion utilisateur',
+        description: 'Authentifie un utilisateur par username/email et mot de passe. Si la 2FA est activée, retourne un token temporaire pour la vérification.',
+        tags: ['Authentification'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['username', 'password'],
+                properties: [
+                    new OA\Property(property: 'username', type: 'string', example: 'admin@example.com'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password', example: 'password'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Connexion réussie ou 2FA requise'),
+            new OA\Response(response: 401, description: 'Identifiants incorrects'),
+            new OA\Response(response: 422, description: 'Erreur de validation'),
+        ]
+    )]
     public function login(LoginRequest $request)
     {
         $identifier = $request->username;
@@ -52,6 +74,28 @@ class AuthController extends Controller
         ], 'Connexion réussie.');
     }
 
+    #[OA\Post(
+        path: '/auth/2fa/challenge',
+        summary: 'Vérification 2FA',
+        description: 'Vérifie le code OTP ou un code de récupération après un login avec 2FA activée.',
+        tags: ['Authentification'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['two_factor_token'],
+                properties: [
+                    new OA\Property(property: 'two_factor_token', type: 'string', description: 'Token temporaire reçu au login'),
+                    new OA\Property(property: 'code', type: 'string', example: '123456', description: 'Code OTP 6 chiffres'),
+                    new OA\Property(property: 'recovery_code', type: 'string', example: 'ABCD-1234', description: 'Code de récupération (alternatif)'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Connexion réussie'),
+            new OA\Response(response: 401, description: 'Token invalide ou expiré'),
+            new OA\Response(response: 422, description: 'Code OTP ou récupération invalide'),
+        ]
+    )]
     public function verifyTwoFactorLogin(TwoFactorLoginRequest $request)
     {
         try {
@@ -97,6 +141,17 @@ class AuthController extends Controller
         ], 'Connexion réussie.');
     }
 
+    #[OA\Post(
+        path: '/auth/logout',
+        summary: 'Déconnexion',
+        description: 'Révoque le token courant de l\'utilisateur.',
+        tags: ['Authentification'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Déconnexion réussie'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -104,6 +159,17 @@ class AuthController extends Controller
         return ApiResponse::success(null, 'Déconnexion réussie.');
     }
 
+    #[OA\Get(
+        path: '/auth/me',
+        summary: 'Utilisateur courant',
+        description: 'Retourne les informations de l\'utilisateur authentifié.',
+        tags: ['Authentification'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Informations utilisateur'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function me(Request $request)
     {
         return ApiResponse::success($request->user());

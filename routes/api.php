@@ -15,7 +15,7 @@ Route::get('/', function () {
     return response()->json([
         'name' => 'Reseau Inventaire App API',
         'version' => '1.0.0',
-        'description' => 'API du Reseau Inventaire réalisé par JOBS-Conseil',
+        'description' => 'API du Reseau Inventaire - Eramet Comilog',
     ]);
 });
 
