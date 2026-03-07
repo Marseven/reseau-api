@@ -20,6 +20,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ChangeRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -153,6 +155,23 @@ Route::prefix('v1')->group(function () {
 
             // Activity logs (admin + directeur only)
             Route::get('/activity-logs', [ActivityLogController::class, 'index']);
+
+            // CSV Exports
+            Route::get('/exports/equipements/csv', [ExportController::class, 'exportEquipementsCsv']);
+            Route::get('/exports/coffrets/csv', [ExportController::class, 'exportCoffretsCsv']);
+            Route::get('/exports/ports/csv', [ExportController::class, 'exportPortsCsv']);
+            Route::get('/exports/liaisons/csv', [ExportController::class, 'exportLiaisonsCsv']);
+            Route::get('/exports/activity-logs/csv', [ExportController::class, 'exportActivityLogsCsv']);
+
+            // PDF Export
+            Route::get('/exports/architecture/pdf', [ExportController::class, 'exportArchitecturePdf']);
+
+            // Reports
+            Route::get('/reports/summary', [ReportController::class, 'summary']);
+            Route::get('/reports/network-status/pdf', [ReportController::class, 'networkStatus']);
+            Route::get('/reports/modifications/pdf', [ReportController::class, 'modifications']);
+            Route::get('/reports/interventions/pdf', [ReportController::class, 'interventions']);
+            Route::get('/reports/site/{site}/architecture/pdf', [ReportController::class, 'siteArchitecturePdf']);
         });
 
         // Change requests - create/delete (technicien, directeur, admin)
