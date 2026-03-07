@@ -17,6 +17,9 @@ use App\Http\Controllers\VlanController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ChangeRequestController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ActivityLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -74,10 +77,21 @@ Route::prefix('v1')->group(function () {
             Route::get('/vlans/{vlan}', [VlanController::class, 'show']);
             Route::get('/maintenances', [MaintenanceController::class, 'index']);
             Route::get('/maintenances/{maintenance}', [MaintenanceController::class, 'show']);
+            Route::get('/change-requests', [ChangeRequestController::class, 'index']);
+            Route::get('/change-requests/{changeRequest}', [ChangeRequestController::class, 'show']);
 
             // QR code resolution
             Route::get('/qr/coffret/{qrToken}', [QrCodeController::class, 'showCoffret']);
             Route::get('/qr/equipement/{qrToken}', [QrCodeController::class, 'showEquipement']);
+
+            // Notifications
+            Route::get('/notifications', [NotificationController::class, 'index']);
+            Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::put('/notifications/{notification}/read', [NotificationController::class, 'markAsRead']);
+            Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy']);
+
+            // Coffret history (accessible to all authenticated users)
+            Route::get('/coffrets/{coffret}/history', [ActivityLogController::class, 'coffretHistory']);
         });
 
         // WRITE access for admin + directeur
@@ -136,11 +150,21 @@ Route::prefix('v1')->group(function () {
             Route::post('/maintenances', [MaintenanceController::class, 'store']);
             Route::put('/maintenances/{maintenance}', [MaintenanceController::class, 'update']);
             Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy']);
+
+            // Activity logs (admin + directeur only)
+            Route::get('/activity-logs', [ActivityLogController::class, 'index']);
         });
 
-        // USER management - admin only
+        // Change requests - create/delete (technicien, directeur, admin)
+        Route::middleware('role:administrator,directeur,technicien')->group(function () {
+            Route::post('/change-requests', [ChangeRequestController::class, 'store']);
+            Route::delete('/change-requests/{changeRequest}', [ChangeRequestController::class, 'destroy']);
+        });
+
+        // USER management + change request review - admin only
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('users', UserController::class);
+            Route::put('/change-requests/{changeRequest}/review', [ChangeRequestController::class, 'review']);
         });
     });
 });

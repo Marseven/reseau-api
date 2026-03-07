@@ -81,4 +81,19 @@ class User extends Authenticatable
         $this->two_factor_recovery_codes = json_encode($codes);
         $this->save();
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function changeRequestsSubmitted()
+    {
+        return $this->hasMany(ChangeRequest::class, 'requester_id');
+    }
+
+    public function changeRequestsReviewed()
+    {
+        return $this->hasMany(ChangeRequest::class, 'reviewer_id');
+    }
 }

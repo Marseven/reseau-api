@@ -6,6 +6,7 @@ use App\Models\Maintenance;
 use App\Helpers\ApiResponse;
 use App\Http\Requests\StoreMaintenanceRequest;
 use App\Http\Requests\UpdateMaintenanceRequest;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class MaintenanceController extends Controller
@@ -57,7 +58,13 @@ class MaintenanceController extends Controller
 
     public function update(UpdateMaintenanceRequest $request, Maintenance $maintenance)
     {
+        $wasNotEnCours = $maintenance->status !== 'en_cours';
+
         $maintenance->update($request->validated());
+
+        if ($wasNotEnCours && $maintenance->status === 'en_cours') {
+            app(NotificationService::class)->notifyMaintenanceActive($maintenance);
+        }
 
         return ApiResponse::success($maintenance, 'Maintenance mise à jour avec succès.');
     }

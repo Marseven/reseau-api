@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,7 @@ use Illuminate\Support\Str;
 
 class Coffret extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'zone_id', 'salle_id', 'qr_token',
@@ -44,5 +45,10 @@ class Coffret extends Model
     public function metrics()
     {
         return $this->hasMany(Metric::class);
+    }
+
+    public function changeRequests()
+    {
+        return $this->hasMany(ChangeRequest::class);
     }
 }

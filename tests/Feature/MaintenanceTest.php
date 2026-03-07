@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Maintenance;
+use App\Models\Notification;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -191,5 +192,25 @@ class MaintenanceTest extends TestCase
         $response->assertStatus(200);
         $items = $response->json('data.data');
         $this->assertCount(1, $items);
+    }
+
+    // ---- NOTIFICATION INTEGRATION ----
+
+    public function test_updating_status_to_en_cours_sends_notification(): void
+    {
+        $maintenance = Maintenance::factory()->create([
+            'status' => 'planifiee',
+            'technicien_id' => $this->technicien->id,
+        ]);
+
+        $this->actingAs($this->admin)->putJson("/api/v1/maintenances/{$maintenance->id}", [
+            'status' => 'en_cours',
+        ]);
+
+        $this->assertTrue(
+            Notification::where('user_id', $this->technicien->id)
+                ->where('type', 'intervention_active')
+                ->exists()
+        );
     }
 }
