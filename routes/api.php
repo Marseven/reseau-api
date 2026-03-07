@@ -15,6 +15,7 @@ use App\Http\Controllers\BatimentController;
 use App\Http\Controllers\SalleController;
 use App\Http\Controllers\VlanController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,6 +74,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/vlans/{vlan}', [VlanController::class, 'show']);
             Route::get('/maintenances', [MaintenanceController::class, 'index']);
             Route::get('/maintenances/{maintenance}', [MaintenanceController::class, 'show']);
+
+            // QR code resolution
+            Route::get('/qr/coffret/{qrToken}', [QrCodeController::class, 'showCoffret']);
+            Route::get('/qr/equipement/{qrToken}', [QrCodeController::class, 'showEquipement']);
         });
 
         // WRITE access for admin + directeur

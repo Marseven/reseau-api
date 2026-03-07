@@ -18,6 +18,7 @@ class CoffretFactory extends Factory
             'long' => fake()->longitude(),
             'lat' => fake()->latitude(),
             'status' => fake()->randomElement(['active', 'inactive', 'maintenance']),
+            'qr_token' => fake()->uuid(),
         ];
     }
 }

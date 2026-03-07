@@ -5,14 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Coffret extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'zone_id', 'salle_id',
+        'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'zone_id', 'salle_id', 'qr_token',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Coffret $coffret) {
+            if (empty($coffret->qr_token)) {
+                $coffret->qr_token = Str::uuid()->toString();
+            }
+        });
+    }
 
     public function zone()
     {

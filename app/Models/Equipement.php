@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Equipement extends Model
 {
@@ -25,7 +26,19 @@ class Equipement extends Model
         'ip_address',
         'coffret_id',
         'status',
+        'qr_token',
     ];
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Equipement $equipement) {
+            if (empty($equipement->qr_token)) {
+                $equipement->qr_token = Str::uuid()->toString();
+            }
+        });
+    }
 
     public function coffret()
     {

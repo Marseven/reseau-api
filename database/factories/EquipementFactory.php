@@ -22,6 +22,7 @@ class EquipementFactory extends Factory
             'ip_address' => fake()->optional()->ipv4(),
             'coffret_id' => Coffret::factory(),
             'status' => fake()->randomElement(['active', 'inactive', 'maintenance']),
+            'qr_token' => fake()->uuid(),
         ];
     }
 }
