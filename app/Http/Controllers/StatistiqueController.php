@@ -16,9 +16,20 @@ use App\Models\Vlan;
 use App\Models\Maintenance;
 use App\Helpers\ApiResponse;
 use Illuminate\Support\Facades\Cache;
+use OpenApi\Attributes as OA;
 
 class StatistiqueController extends Controller
 {
+    #[OA\Get(
+        path: '/stats/global',
+        summary: 'Statistiques globales',
+        tags: ['Statistiques'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Statistiques globales'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function globalStats()
     {
         $stats = Cache::remember('stats.global', 300, function () {
@@ -89,6 +100,16 @@ class StatistiqueController extends Controller
         return ApiResponse::success($stats);
     }
 
+    #[OA\Get(
+        path: '/stats/systems-by-type',
+        summary: 'Systèmes par type',
+        tags: ['Statistiques'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Systèmes groupés par type'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function systemsByType()
     {
         $data = Cache::remember('stats.systems_by_type', 300, function () {
@@ -100,6 +121,16 @@ class StatistiqueController extends Controller
         return ApiResponse::success($data);
     }
 
+    #[OA\Get(
+        path: '/stats/equipements-by-coffret',
+        summary: 'Équipements par coffret',
+        tags: ['Statistiques'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Équipements groupés par coffret'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function equipementsByCoffret()
     {
         $data = Cache::remember('stats.equipements_by_coffret', 300, function () {
@@ -112,6 +143,16 @@ class StatistiqueController extends Controller
         return ApiResponse::success($data);
     }
 
+    #[OA\Get(
+        path: '/stats/ports-by-vlan',
+        summary: 'Ports par VLAN',
+        tags: ['Statistiques'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Ports groupés par VLAN'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function portsByVlan()
     {
         $data = Cache::remember('stats.ports_by_vlan', 300, function () {

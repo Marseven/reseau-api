@@ -7,6 +7,7 @@ use App\Http\Requests\TwoFactorVerifyRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FA\Google2FA;
+use OpenApi\Attributes as OA;
 
 class TwoFactorController extends Controller
 {
@@ -17,6 +18,17 @@ class TwoFactorController extends Controller
         $this->google2fa = new Google2FA();
     }
 
+    #[OA\Post(
+        path: '/auth/2fa/setup',
+        summary: 'Configurer la 2FA',
+        security: [['sanctum' => []]],
+        tags: ['Authentification'],
+        responses: [
+            new OA\Response(response: 200, description: 'Secret et URI généré'),
+            new OA\Response(response: 400, description: '2FA déjà activée'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function setup(Request $request)
     {
         $user = $request->user();
@@ -42,6 +54,27 @@ class TwoFactorController extends Controller
         ], 'Secret 2FA généré.');
     }
 
+    #[OA\Post(
+        path: '/auth/2fa/verify',
+        summary: 'Activer la 2FA',
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['code'],
+                properties: [
+                    new OA\Property(property: 'code', type: 'string', description: 'Code OTP'),
+                ]
+            )
+        ),
+        tags: ['Authentification'],
+        responses: [
+            new OA\Response(response: 200, description: '2FA activée + codes de récupération'),
+            new OA\Response(response: 400, description: 'Erreur'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Code invalide'),
+        ]
+    )]
     public function verify(TwoFactorVerifyRequest $request)
     {
         $user = $request->user();
@@ -71,6 +104,27 @@ class TwoFactorController extends Controller
         ], '2FA activée avec succès.');
     }
 
+    #[OA\Post(
+        path: '/auth/2fa/disable',
+        summary: 'Désactiver la 2FA',
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['code'],
+                properties: [
+                    new OA\Property(property: 'code', type: 'string', description: 'Code OTP'),
+                ]
+            )
+        ),
+        tags: ['Authentification'],
+        responses: [
+            new OA\Response(response: 200, description: '2FA désactivée'),
+            new OA\Response(response: 400, description: 'Erreur'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Code invalide'),
+        ]
+    )]
     public function disable(TwoFactorVerifyRequest $request)
     {
         $user = $request->user();
@@ -93,6 +147,17 @@ class TwoFactorController extends Controller
         return ApiResponse::success(null, '2FA désactivée avec succès.');
     }
 
+    #[OA\Get(
+        path: '/auth/2fa/recovery-codes',
+        summary: 'Nombre de codes de récupération',
+        security: [['sanctum' => []]],
+        tags: ['Authentification'],
+        responses: [
+            new OA\Response(response: 200, description: 'Nombre de codes restants'),
+            new OA\Response(response: 400, description: '2FA non activée'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function recoveryCodes(Request $request)
     {
         $user = $request->user();
@@ -108,6 +173,27 @@ class TwoFactorController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: '/auth/2fa/recovery-codes/regenerate',
+        summary: 'Régénérer les codes de récupération',
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['code'],
+                properties: [
+                    new OA\Property(property: 'code', type: 'string', description: 'Code OTP'),
+                ]
+            )
+        ),
+        tags: ['Authentification'],
+        responses: [
+            new OA\Response(response: 200, description: 'Codes de récupération régénérés'),
+            new OA\Response(response: 400, description: '2FA non activée'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 422, description: 'Code invalide'),
+        ]
+    )]
     public function regenerateRecoveryCodes(TwoFactorVerifyRequest $request)
     {
         $user = $request->user();

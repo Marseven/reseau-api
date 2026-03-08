@@ -12,9 +12,24 @@ use App\Models\Site;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use OpenApi\Attributes as OA;
 
 class ReportController extends Controller
 {
+    #[OA\Get(
+        path: '/reports/summary',
+        summary: 'Résumé des activités et maintenances',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Résumé des rapports'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function summary(Request $request)
     {
         $from = $request->input('from', now()->subMonth()->toDateString());
@@ -52,6 +67,16 @@ class ReportController extends Controller
         ], 'Résumé des rapports.');
     }
 
+    #[OA\Get(
+        path: '/reports/network-status/pdf',
+        summary: 'Rapport PDF du statut réseau',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function networkStatus()
     {
         $sites = Site::with('zones.coffrets.equipments.ports')->get();
@@ -83,6 +108,20 @@ class ReportController extends Controller
         return $pdf->download('statut-reseau.pdf');
     }
 
+    #[OA\Get(
+        path: '/reports/modifications/pdf',
+        summary: 'Rapport PDF des modifications',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: true, schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'to', in: 'query', required: true, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function modifications(Request $request)
     {
         $request->validate([
@@ -122,6 +161,20 @@ class ReportController extends Controller
         return $pdf->download('modifications.pdf');
     }
 
+    #[OA\Get(
+        path: '/reports/interventions/pdf',
+        summary: 'Rapport PDF des interventions',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: true, schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'to', in: 'query', required: true, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function interventions(Request $request)
     {
         $query = Maintenance::with(['technicien', 'site']);
@@ -163,6 +216,20 @@ class ReportController extends Controller
         return $pdf->download('interventions.pdf');
     }
 
+    #[OA\Get(
+        path: '/reports/site/{site}/architecture/pdf',
+        summary: 'Rapport PDF de l\'architecture d\'un site',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'site', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 404, description: 'Site non trouvé'),
+        ]
+    )]
     public function siteArchitecturePdf(Site $site)
     {
         $site->load('zones.coffrets.equipments');

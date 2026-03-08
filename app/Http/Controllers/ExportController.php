@@ -14,9 +14,23 @@ use App\Models\Salle;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use OpenApi\Attributes as OA;
 
 class ExportController extends Controller
 {
+    #[OA\Get(
+        path: '/exports/equipements/csv',
+        summary: 'Exporter les équipements en CSV',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'site_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier CSV'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportEquipementsCsv(Request $request): StreamedResponse
     {
         $query = Equipement::with('coffret.zone.site');
@@ -46,6 +60,19 @@ class ExportController extends Controller
         );
     }
 
+    #[OA\Get(
+        path: '/exports/coffrets/csv',
+        summary: 'Exporter les coffrets en CSV',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'site_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier CSV'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportCoffretsCsv(Request $request): StreamedResponse
     {
         $query = Coffret::with('zone.site', 'salle');
@@ -74,6 +101,19 @@ class ExportController extends Controller
         );
     }
 
+    #[OA\Get(
+        path: '/exports/ports/csv',
+        summary: 'Exporter les ports en CSV',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'equipement_id', in: 'query', required: false, schema: new OA\Schema(type: 'integer')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier CSV'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportPortsCsv(Request $request): StreamedResponse
     {
         $query = Port::with('equipement');
@@ -100,6 +140,16 @@ class ExportController extends Controller
         );
     }
 
+    #[OA\Get(
+        path: '/exports/liaisons/csv',
+        summary: 'Exporter les liaisons en CSV',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier CSV'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportLiaisonsCsv(): StreamedResponse
     {
         $rows = Liaison::all()->map(fn ($l) => [
@@ -118,6 +168,20 @@ class ExportController extends Controller
         );
     }
 
+    #[OA\Get(
+        path: '/exports/activity-logs/csv',
+        summary: 'Exporter les logs d\'activité en CSV',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier CSV'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportActivityLogsCsv(Request $request): StreamedResponse
     {
         $query = ActivityLog::with('user');
@@ -145,6 +209,16 @@ class ExportController extends Controller
         );
     }
 
+    #[OA\Get(
+        path: '/exports/architecture/pdf',
+        summary: 'Exporter l\'architecture réseau en PDF',
+        tags: ['Exports'],
+        security: [['sanctum' => []]],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
     public function exportArchitecturePdf()
     {
         $sites = Site::with('zones.coffrets.equipments')->get();
