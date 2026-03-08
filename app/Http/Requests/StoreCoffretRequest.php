@@ -22,6 +22,7 @@ class StoreCoffretRequest extends FormRequest
             'lat' => 'nullable|numeric',
             'status' => 'sometimes|in:active,inactive,maintenance',
             'zone_id' => 'nullable|exists:zones,id',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ];
     }
 }

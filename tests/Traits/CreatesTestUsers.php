@@ -37,4 +37,12 @@ trait CreatesTestUsers
             'is_active' => true,
         ], $overrides));
     }
+
+    protected function createPrestataire(array $overrides = []): User
+    {
+        return User::factory()->create(array_merge([
+            'role' => 'prestataire',
+            'is_active' => true,
+        ], $overrides));
+    }
 }

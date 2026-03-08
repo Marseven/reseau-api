@@ -22,6 +22,7 @@ class UpdateCoffretRequest extends FormRequest
             'lat' => 'sometimes|numeric',
             'status' => 'sometimes|in:active,inactive,maintenance',
             'zone_id' => 'nullable|exists:zones,id',
+            'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ];
     }
 }

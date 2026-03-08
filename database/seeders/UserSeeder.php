@@ -55,6 +55,16 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('Comilog@2026!'),
                 'is_active' => true,
             ],
+            [
+                'name' => 'Prestataire',
+                'surname' => 'Externe',
+                'username' => 'prestataire',
+                'phone' => '+241 74 00 00 05',
+                'role' => 'prestataire',
+                'email' => 'prestataire@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
+                'is_active' => true,
+            ],
         ];
 
         foreach ($users as $user) {

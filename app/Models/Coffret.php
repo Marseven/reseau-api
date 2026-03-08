@@ -13,7 +13,7 @@ class Coffret extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-        'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'zone_id', 'salle_id', 'qr_token',
+        'code', 'name', 'piece', 'type', 'long', 'lat', 'status', 'photo', 'zone_id', 'salle_id', 'qr_token',
     ];
 
     protected static function boot(): void

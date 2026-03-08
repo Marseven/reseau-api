@@ -96,4 +96,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ChangeRequest::class, 'reviewer_id');
     }
+
+    public function loginAudits()
+    {
+        return $this->hasMany(LoginAudit::class);
+    }
 }

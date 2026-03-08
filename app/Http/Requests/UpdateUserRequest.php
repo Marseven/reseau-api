@@ -21,7 +21,7 @@ class UpdateUserRequest extends FormRequest
             'username' => 'sometimes|string|max:255|unique:users,username,' . $userId,
             'email' => 'sometimes|email|max:255|unique:users,email,' . $userId,
             'phone' => 'nullable|string|max:50',
-            'role' => 'sometimes|in:administrator,directeur,technicien,user',
+            'role' => 'sometimes|in:administrator,directeur,technicien,user,prestataire',
             'password' => 'sometimes|string|min:8|confirmed',
             'is_active' => 'sometimes|boolean',
             'site_id' => 'nullable|exists:sites,id',

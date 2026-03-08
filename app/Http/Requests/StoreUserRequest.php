@@ -19,7 +19,7 @@ class StoreUserRequest extends FormRequest
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|email|max:255|unique:users,email',
             'phone' => 'nullable|string|max:50',
-            'role' => 'required|in:administrator,directeur,technicien,user',
+            'role' => 'required|in:administrator,directeur,technicien,user,prestataire',
             'password' => 'required|string|min:8|confirmed',
             'is_active' => 'sometimes|boolean',
             'site_id' => 'nullable|exists:sites,id',
