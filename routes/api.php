@@ -28,6 +28,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\LabelController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -230,11 +231,13 @@ Route::prefix('v1')->group(function () {
             Route::delete('/change-requests/{changeRequest}', [ChangeRequestController::class, 'destroy']);
         });
 
-        // USER management + change request review - admin only
+        // USER management + change request review + settings - admin only
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('users', UserController::class);
             Route::put('/change-requests/{changeRequest}/review', [ChangeRequestController::class, 'review']);
             Route::get('/login-audits', [LoginAuditController::class, 'index']);
+            Route::get('/settings', [SettingsController::class, 'index']);
+            Route::put('/settings', [SettingsController::class, 'update']);
         });
     });
 });

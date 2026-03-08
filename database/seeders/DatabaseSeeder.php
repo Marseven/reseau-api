@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             CoffretSeeder::class,
             VlanSeeder::class,
             MaintenanceSeeder::class,
+            SettingsSeeder::class,
         ]);
     }
 }
