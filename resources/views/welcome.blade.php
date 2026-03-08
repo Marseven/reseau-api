@@ -20,7 +20,6 @@
             flex-direction: column;
         }
 
-        /* Background gradient effect */
         .bg-glow {
             position: fixed;
             top: -30%;
@@ -36,7 +35,7 @@
         .container {
             position: relative;
             z-index: 1;
-            max-width: 960px;
+            max-width: 1020px;
             margin: 0 auto;
             padding: 3rem 1.5rem;
             flex: 1;
@@ -51,8 +50,9 @@
         }
 
         .logo {
-            width: 72px;
-            height: 72px;
+            max-height: 64px;
+            width: auto;
+            object-fit: contain;
             filter: brightness(0) invert(1);
             margin-bottom: 1.5rem;
         }
@@ -121,29 +121,24 @@
         }
 
         .endpoints-table td {
-            padding: 0.6rem 0.75rem;
-            font-size: 0.875rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
             border-bottom: 1px solid rgba(255,255,255,0.03);
             vertical-align: middle;
         }
 
-        .endpoints-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .endpoints-table tr:hover td {
-            background: rgba(255,255,255,0.02);
-        }
+        .endpoints-table tr:last-child td { border-bottom: none; }
+        .endpoints-table tr:hover td { background: rgba(255,255,255,0.02); }
 
         .method {
             display: inline-block;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            padding: 0.2rem 0.5rem;
+            padding: 0.15rem 0.4rem;
             border-radius: 4px;
             letter-spacing: 0.05em;
             font-family: 'Outfit', monospace;
-            min-width: 52px;
+            min-width: 42px;
             text-align: center;
         }
 
@@ -152,21 +147,9 @@
         .method-put { background: rgba(245,158,11,0.15); color: #fbbf24; }
         .method-delete { background: rgba(239,68,68,0.15); color: #f87171; }
 
-        .route-path {
-            font-family: 'Outfit', monospace;
-            color: #cbd5e1;
-            font-size: 0.8rem;
-        }
-
-        .route-desc {
-            color: #64748b;
-            font-size: 0.8rem;
-        }
-
-        .route-roles {
-            font-size: 0.7rem;
-            color: #475569;
-        }
+        .route-path { font-family: 'Outfit', monospace; color: #cbd5e1; font-size: 0.8rem; }
+        .route-desc { color: #64748b; font-size: 0.8rem; }
+        .route-roles { font-size: 0.7rem; color: #475569; }
 
         /* Swagger button */
         .actions {
@@ -197,15 +180,12 @@
             box-shadow: 0 8px 30px rgba(48,53,93,0.4);
         }
 
-        .btn-swagger svg {
-            width: 20px;
-            height: 20px;
-        }
+        .btn-swagger svg { width: 20px; height: 20px; }
 
         /* Info grid */
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -218,17 +198,8 @@
             text-align: center;
         }
 
-        .info-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #a5b4fc;
-        }
-
-        .info-label {
-            font-size: 0.75rem;
-            color: #64748b;
-            margin-top: 0.25rem;
-        }
+        .info-value { font-size: 1.5rem; font-weight: 700; color: #a5b4fc; }
+        .info-label { font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
 
         /* Footer */
         .footer {
@@ -238,21 +209,12 @@
             margin-top: auto;
         }
 
-        .footer-text {
-            font-size: 0.8rem;
-            color: #475569;
-            font-weight: 300;
-        }
+        .footer-text { font-size: 0.8rem; color: #475569; font-weight: 300; }
+        .footer-brand { color: #64748b; font-weight: 500; }
 
-        .footer-brand {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        /* Responsive */
         @media (max-width: 640px) {
             .title { font-size: 1.5rem; }
-            .info-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
             .card { padding: 1.25rem; }
             .endpoints-table { font-size: 0.8rem; }
             .container { padding: 2rem 1rem; }
@@ -265,25 +227,29 @@
     <div class="container">
         <!-- Header -->
         <header class="header">
-            <img src="/logo.png" alt="ReseauApp" class="logo">
+            <img src="/logo.png" alt="Eramet Comilog" class="logo">
             <h1 class="title">ReseauApp API</h1>
-            <p class="subtitle">Infrastructure Réseau & Inventaire - Eramet Comilog</p>
+            <p class="subtitle">Infrastructure Réseau & Inventaire — Eramet Comilog</p>
             <span class="badge">v1.0.0</span>
         </header>
 
         <!-- Quick stats -->
         <div class="info-grid">
             <div class="info-item">
-                <div class="info-value">6</div>
+                <div class="info-value">14</div>
                 <div class="info-label">Ressources CRUD</div>
             </div>
             <div class="info-item">
-                <div class="info-value">4</div>
-                <div class="info-label">Endpoints Stats</div>
+                <div class="info-value">7</div>
+                <div class="info-label">Analytics</div>
             </div>
             <div class="info-item">
                 <div class="info-value">2FA</div>
                 <div class="info-label">Authentification</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value">5</div>
+                <div class="info-label">Exports CSV/PDF</div>
             </div>
         </div>
 
@@ -301,31 +267,42 @@
             </a>
         </div>
 
-        <!-- Endpoints table -->
+        <!-- Public -->
         <div class="card">
-            <h2 class="card-title">Authentification</h2>
+            <h2 class="card-title">Public (sans authentification)</h2>
             <table class="endpoints-table">
-                <thead>
-                    <tr>
-                        <th>Méthode</th>
-                        <th>Route</th>
-                        <th>Description</th>
-                        <th>Accès</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th></tr></thead>
                 <tbody>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/health</td>
+                        <td class="route-desc">Health check</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/stats/public</td>
+                        <td class="route-desc">Compteurs agrégés</td>
+                    </tr>
                     <tr>
                         <td><span class="method method-post">POST</span></td>
                         <td class="route-path">/api/v1/auth/login</td>
                         <td class="route-desc">Connexion utilisateur</td>
-                        <td class="route-roles">Public</td>
                     </tr>
                     <tr>
                         <td><span class="method method-post">POST</span></td>
                         <td class="route-path">/api/v1/auth/2fa/challenge</td>
-                        <td class="route-desc">Vérification 2FA</td>
-                        <td class="route-roles">Public</td>
+                        <td class="route-desc">Vérification 2FA (rate-limited)</td>
                     </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Auth -->
+        <div class="card">
+            <h2 class="card-title">Authentification & Profil</h2>
+            <table class="endpoints-table">
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
+                <tbody>
                     <tr>
                         <td><span class="method method-post">POST</span></td>
                         <td class="route-path">/api/v1/auth/logout</td>
@@ -338,21 +315,27 @@
                         <td class="route-desc">Utilisateur courant</td>
                         <td class="route-roles">Auth</td>
                     </tr>
+                    <tr>
+                        <td><span class="method method-put">PUT</span></td>
+                        <td class="route-path">/api/v1/auth/profile</td>
+                        <td class="route-desc">Modifier profil</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-put">PUT</span></td>
+                        <td class="route-path">/api/v1/auth/password</td>
+                        <td class="route-desc">Changer mot de passe</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- 2FA -->
         <div class="card">
-            <h2 class="card-title">2FA Management</h2>
+            <h2 class="card-title">Gestion 2FA</h2>
             <table class="endpoints-table">
-                <thead>
-                    <tr>
-                        <th>Méthode</th>
-                        <th>Route</th>
-                        <th>Description</th>
-                        <th>Accès</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
                 <tbody>
                     <tr>
                         <td><span class="method method-post">POST</span></td>
@@ -388,17 +371,94 @@
             </table>
         </div>
 
+        <!-- CRUD Resources -->
         <div class="card">
-            <h2 class="card-title">Statistiques</h2>
+            <h2 class="card-title">Ressources CRUD</h2>
             <table class="endpoints-table">
-                <thead>
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
+                <tbody>
+                    @php
+                        $resources = [
+                            ['name' => 'sites', 'label' => 'Sites'],
+                            ['name' => 'zones', 'label' => 'Zones'],
+                            ['name' => 'batiments', 'label' => 'Bâtiments'],
+                            ['name' => 'salles', 'label' => 'Salles'],
+                            ['name' => 'coffrets', 'label' => 'Coffrets / Baies'],
+                            ['name' => 'equipements', 'label' => 'Équipements réseau'],
+                            ['name' => 'ports', 'label' => 'Ports réseau'],
+                            ['name' => 'liaisons', 'label' => 'Liaisons'],
+                            ['name' => 'metrics', 'label' => 'Métriques'],
+                            ['name' => 'systems', 'label' => 'Systèmes'],
+                            ['name' => 'vlans', 'label' => 'VLANs'],
+                            ['name' => 'maintenances', 'label' => 'Maintenances'],
+                            ['name' => 'change-requests', 'label' => 'Demandes de changement'],
+                            ['name' => 'users', 'label' => 'Utilisateurs'],
+                        ];
+                    @endphp
+                    @foreach($resources as $res)
                     <tr>
-                        <th>Méthode</th>
-                        <th>Route</th>
-                        <th>Description</th>
-                        <th>Accès</th>
+                        <td>
+                            <span class="method method-get">GET</span>
+                            <span class="method method-post">POST</span>
+                        </td>
+                        <td class="route-path">/api/v1/{{ $res['name'] }}</td>
+                        <td class="route-desc">{{ $res['label'] }}</td>
+                        <td class="route-roles">R: all auth · W: admin, directeur</td>
                     </tr>
-                </thead>
+                    <tr>
+                        <td>
+                            <span class="method method-get">GET</span>
+                            <span class="method method-put">PUT</span>
+                            <span class="method method-delete">DEL</span>
+                        </td>
+                        <td class="route-path">/api/v1/{{ $res['name'] }}/{id}</td>
+                        <td class="route-desc">{{ $res['label'] }} (détail)</td>
+                        <td class="route-roles">R: all auth · W: admin, directeur</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card">
+            <h2 class="card-title">Notifications</h2>
+            <table class="endpoints-table">
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/notifications</td>
+                        <td class="route-desc">Liste des notifications</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-put">PUT</span></td>
+                        <td class="route-path">/api/v1/notifications/read-all</td>
+                        <td class="route-desc">Tout marquer comme lu</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-put">PUT</span></td>
+                        <td class="route-path">/api/v1/notifications/{id}/read</td>
+                        <td class="route-desc">Marquer une notification comme lue</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-delete">DEL</span></td>
+                        <td class="route-path">/api/v1/notifications/{id}</td>
+                        <td class="route-desc">Supprimer une notification</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Statistiques & Analytics -->
+        <div class="card">
+            <h2 class="card-title">Statistiques & Analytics</h2>
+            <table class="endpoints-table">
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
                 <tbody>
                     <tr>
                         <td><span class="method method-get">GET</span></td>
@@ -424,53 +484,164 @@
                         <td class="route-desc">Ports par VLAN</td>
                         <td class="route-roles">admin, directeur</td>
                     </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/equipements-by-type</td>
+                        <td class="route-desc">Équipements par type</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/equipements-by-classification</td>
+                        <td class="route-desc">Équipements par classification</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/equipements-by-status</td>
+                        <td class="route-desc">Équipements par statut</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/equipements-by-vendor</td>
+                        <td class="route-desc">Équipements par fournisseur</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/maintenance-trends</td>
+                        <td class="route-desc">Tendances maintenances</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/port-utilization</td>
+                        <td class="route-desc">Utilisation des ports</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/analytics/sites-summary</td>
+                        <td class="route-desc">Résumé par site</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- Exports, Imports, Reports -->
         <div class="card">
-            <h2 class="card-title">Ressources CRUD</h2>
+            <h2 class="card-title">Exports, Imports & Rapports</h2>
             <table class="endpoints-table">
-                <thead>
-                    <tr>
-                        <th>Méthode</th>
-                        <th>Route</th>
-                        <th>Description</th>
-                        <th>Accès</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
                 <tbody>
-                    @php
-                        $resources = [
-                            ['name' => 'coffrets', 'label' => 'Coffrets / Armoires'],
-                            ['name' => 'equipements', 'label' => 'Équipements réseau'],
-                            ['name' => 'ports', 'label' => 'Ports réseau'],
-                            ['name' => 'metrics', 'label' => 'Métriques'],
-                            ['name' => 'liaisons', 'label' => 'Liaisons'],
-                            ['name' => 'systems', 'label' => 'Systèmes'],
-                        ];
-                    @endphp
-                    @foreach($resources as $res)
                     <tr>
-                        <td>
-                            <span class="method method-get">GET</span>
-                            <span class="method method-post">POST</span>
-                        </td>
-                        <td class="route-path">/api/v1/{{ $res['name'] }}</td>
-                        <td class="route-desc">{{ $res['label'] }}</td>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/exports/{resource}/csv</td>
+                        <td class="route-desc">Export CSV (equipements, coffrets, ports, liaisons, activity-logs)</td>
                         <td class="route-roles">admin, directeur</td>
                     </tr>
                     <tr>
-                        <td>
-                            <span class="method method-get">GET</span>
-                            <span class="method method-put">PUT</span>
-                            <span class="method method-delete">DEL</span>
-                        </td>
-                        <td class="route-path">/api/v1/{{ $res['name'] }}/{id}</td>
-                        <td class="route-desc">{{ $res['label'] }} (détail)</td>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/exports/architecture/pdf</td>
+                        <td class="route-desc">Export architecture PDF</td>
                         <td class="route-roles">admin, directeur</td>
                     </tr>
-                    @endforeach
+                    <tr>
+                        <td><span class="method method-post">POST</span></td>
+                        <td class="route-path">/api/v1/imports/{resource}/csv</td>
+                        <td class="route-desc">Import CSV (coffrets, equipements, ports, liaisons)</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/imports/{resource}/template</td>
+                        <td class="route-desc">Template CSV d'import</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/reports/summary</td>
+                        <td class="route-desc">Résumé des rapports</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/reports/{type}/pdf</td>
+                        <td class="route-desc">Rapports PDF (network-status, modifications, interventions)</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-post">POST</span></td>
+                        <td class="route-path">/api/v1/labels/{resource}</td>
+                        <td class="route-desc">Étiquettes PDF (coffrets, equipements)</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Misc -->
+        <div class="card">
+            <h2 class="card-title">Divers</h2>
+            <table class="endpoints-table">
+                <thead><tr><th>Méthode</th><th>Route</th><th>Description</th><th>Accès</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/qr/coffret/{token}</td>
+                        <td class="route-desc">Résolution QR code coffret</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/qr/equipement/{token}</td>
+                        <td class="route-desc">Résolution QR code équipement</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/topology</td>
+                        <td class="route-desc">Topologie réseau</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/activity-logs</td>
+                        <td class="route-desc">Logs d'activité</td>
+                        <td class="route-roles">admin, directeur</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/coffrets/{id}/history</td>
+                        <td class="route-desc">Historique d'un coffret</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/login-audits</td>
+                        <td class="route-desc">Audit des connexions</td>
+                        <td class="route-roles">admin</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/login-audits/me</td>
+                        <td class="route-desc">Mon historique de connexion</td>
+                        <td class="route-roles">Auth</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-get">GET</span></td>
+                        <td class="route-path">/api/v1/settings</td>
+                        <td class="route-desc">Paramètres système</td>
+                        <td class="route-roles">admin</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method method-put">PUT</span></td>
+                        <td class="route-path">/api/v1/settings</td>
+                        <td class="route-desc">Modifier paramètres</td>
+                        <td class="route-roles">admin</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -481,8 +652,7 @@
                 <span class="footer-brand">Eramet Comilog</span> &middot;
                 ReseauApp API v1.0.0 &middot;
                 Laravel v{{ Illuminate\Foundation\Application::VERSION }} &middot;
-                PHP v{{ PHP_VERSION }} &middot;
-                JOBS-Conseil
+                PHP v{{ PHP_VERSION }}
             </p>
         </footer>
     </div>

@@ -8,10 +8,6 @@ use OpenApi\Attributes as OA;
     version: '1.0.0',
     title: 'ReseauApp API - Eramet Comilog',
     description: "API REST de gestion d'inventaire et d'infrastructure réseau pour Eramet Comilog. Authentification via Laravel Sanctum (Bearer Token).",
-    contact: new OA\Contact(
-        name: 'JOBS-Conseil',
-        email: 'contact@jobs-conseil.tech'
-    )
 )]
 #[OA\Server(
     url: '/api/v1',
