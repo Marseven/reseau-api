@@ -44,14 +44,19 @@ class User extends Authenticatable
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
     public function isAdministrator(): bool
     {
-        return $this->role === 'administrator';
+        return $this->role === 'administrator' || $this->isSuperAdmin();
     }
 
     public function hasRole(string ...$roles): bool
     {
-        return in_array($this->role, $roles);
+        return $this->isSuperAdmin() || in_array($this->role, $roles);
     }
 
     public function site()

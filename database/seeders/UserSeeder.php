@@ -16,6 +16,16 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
+                'name' => 'Super',
+                'surname' => 'Admin',
+                'username' => 'superadmin',
+                'phone' => '+241 74 00 00 00',
+                'role' => 'superadmin',
+                'email' => 'superadmin@eramet-comilog.com',
+                'password' => Hash::make('Comilog@2026!'),
+                'is_active' => true,
+            ],
+            [
                 'name' => 'Administrateur',
                 'surname' => 'Système',
                 'username' => 'administrateur',

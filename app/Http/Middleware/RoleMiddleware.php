@@ -21,6 +21,11 @@ class RoleMiddleware
 
         $userRole = auth()->user()->role;
 
+        // superadmin bypasses all role checks
+        if ($userRole === 'superadmin') {
+            return $next($request);
+        }
+
         if (!in_array($userRole, $roles)) {
             return response()->json(['message' => 'Non autorisé'], 403);
         }
