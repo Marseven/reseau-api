@@ -210,4 +210,83 @@ class AuthController extends Controller
     {
         return ApiResponse::success($request->user());
     }
+
+    #[OA\Put(
+        path: '/auth/profile',
+        summary: 'Mise à jour du profil',
+        description: 'Met à jour les informations du profil de l\'utilisateur authentifié.',
+        tags: ['Authentification'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'John'),
+                    new OA\Property(property: 'surname', type: 'string', example: 'Doe'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com'),
+                    new OA\Property(property: 'phone', type: 'string', example: '+241 01 23 45 67'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Profil mis à jour'),
+            new OA\Response(response: 422, description: 'Erreur de validation'),
+        ]
+    )]
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'surname' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->update($validated);
+
+        return ApiResponse::success($user->fresh()->load('site'), 'Profil mis à jour avec succès.');
+    }
+
+    #[OA\Put(
+        path: '/auth/password',
+        summary: 'Changement de mot de passe',
+        description: 'Change le mot de passe de l\'utilisateur authentifié.',
+        tags: ['Authentification'],
+        security: [['sanctum' => []]],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['current_password', 'password', 'password_confirmation'],
+                properties: [
+                    new OA\Property(property: 'current_password', type: 'string', format: 'password'),
+                    new OA\Property(property: 'password', type: 'string', format: 'password'),
+                    new OA\Property(property: 'password_confirmation', type: 'string', format: 'password'),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Mot de passe modifié'),
+            new OA\Response(response: 422, description: 'Mot de passe actuel incorrect ou validation échouée'),
+        ]
+    )]
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return ApiResponse::error('Mot de passe actuel incorrect.', 422);
+        }
+
+        $user->update(['password' => $request->password]);
+
+        return ApiResponse::success(null, 'Mot de passe modifié avec succès.');
+    }
 }
