@@ -20,6 +20,24 @@ use OpenApi\Attributes as OA;
 
 class StatistiqueController extends Controller
 {
+    public function publicStats()
+    {
+        $stats = Cache::remember('stats.public', 300, function () {
+            $totalEquip = Equipement::count();
+            $activeEquip = Equipement::where('status', 'active')->count();
+
+            return [
+                'coffrets' => Coffret::count(),
+                'equipements' => $totalEquip,
+                'uptime' => $totalEquip > 0
+                    ? round(($activeEquip / $totalEquip) * 100, 1)
+                    : 0,
+            ];
+        });
+
+        return ApiResponse::success($stats);
+    }
+
     #[OA\Get(
         path: '/stats/global',
         summary: 'Statistiques globales',

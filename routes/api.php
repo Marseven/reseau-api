@@ -44,6 +44,9 @@ Route::prefix('v1')->group(function () {
     // Health check (public, no auth)
     Route::get('/health', HealthController::class);
 
+    // Public stats (aggregate counts, no auth)
+    Route::get('/stats/public', [StatistiqueController::class, 'publicStats']);
+
     Route::middleware('throttle:auth')->group(function () {
         Route::post('/auth/login', [AuthController::class, 'login']);
     });
