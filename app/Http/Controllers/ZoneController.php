@@ -30,7 +30,7 @@ class ZoneController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Zone::with('site');
+        $query = Zone::with('site')->withCount(['batiments', 'coffrets']);
 
         if ($request->has('site_id')) {
             $query->where('site_id', $request->site_id);
@@ -82,7 +82,7 @@ class ZoneController extends Controller
     )]
     public function show(Zone $zone)
     {
-        return ApiResponse::success($zone->load('site', 'coffrets'));
+        return ApiResponse::success($zone->load('site', 'batiments', 'coffrets'));
     }
 
     #[OA\Put(

@@ -33,7 +33,7 @@ class CoffretController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Coffret::with('equipments', 'metrics', 'zone');
+        $query = Coffret::with('zone')->withCount('equipments');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);

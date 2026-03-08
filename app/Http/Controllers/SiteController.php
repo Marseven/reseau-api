@@ -29,7 +29,7 @@ class SiteController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Site::with('zones');
+        $query = Site::withCount('zones');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);

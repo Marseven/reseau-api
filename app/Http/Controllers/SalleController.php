@@ -30,7 +30,7 @@ class SalleController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Salle::with('batiment');
+        $query = Salle::with('batiment')->withCount('coffrets');
 
         if ($request->has('batiment_id')) {
             $query->where('batiment_id', $request->batiment_id);
@@ -82,7 +82,7 @@ class SalleController extends Controller
     )]
     public function show(Salle $salle)
     {
-        return ApiResponse::success($salle->load('batiment', 'coffrets'));
+        return ApiResponse::success($salle->load('batiment.zone.site', 'coffrets'));
     }
 
     #[OA\Put(

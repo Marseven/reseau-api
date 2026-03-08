@@ -30,7 +30,7 @@ class BatimentController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Batiment::with('zone');
+        $query = Batiment::with('zone')->withCount('salles');
 
         if ($request->has('zone_id')) {
             $query->where('zone_id', $request->zone_id);
@@ -82,7 +82,7 @@ class BatimentController extends Controller
     )]
     public function show(Batiment $batiment)
     {
-        return ApiResponse::success($batiment->load('zone', 'salles'));
+        return ApiResponse::success($batiment->load('zone.site', 'salles'));
     }
 
     #[OA\Put(

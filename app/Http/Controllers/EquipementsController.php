@@ -31,7 +31,7 @@ class EquipementsController extends Controller
     )]
     public function index(Request $request)
     {
-        $query = Equipement::with('coffret');
+        $query = Equipement::with('coffret')->withCount('ports');
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
