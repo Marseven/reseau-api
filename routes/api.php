@@ -22,6 +22,12 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\LoginAuditController;
+use App\Http\Controllers\TopologyController;
+use App\Http\Controllers\HealthController;
+use App\Http\Controllers\ImportController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\LabelController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,7 +40,12 @@ Route::get('/', function () {
 
 Route::prefix('v1')->group(function () {
 
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    // Health check (public, no auth)
+    Route::get('/health', HealthController::class);
+
+    Route::middleware('throttle:auth')->group(function () {
+        Route::post('/auth/login', [AuthController::class, 'login']);
+    });
 
     // 2FA challenge (public, rate-limited)
     Route::middleware('throttle:5,1')->group(function () {
@@ -54,7 +65,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/2fa/recovery-codes/regenerate', [TwoFactorController::class, 'regenerateRecoveryCodes']);
 
         // READ access for all authenticated roles
-        Route::middleware('role:administrator,directeur,technicien,user')->group(function () {
+        Route::middleware('role:administrator,directeur,technicien,user,prestataire')->group(function () {
             Route::get('/sites', [SiteController::class, 'index']);
             Route::get('/sites/{site}', [SiteController::class, 'show']);
             Route::get('/zones', [ZoneController::class, 'index']);
@@ -94,10 +105,27 @@ Route::prefix('v1')->group(function () {
 
             // Coffret history (accessible to all authenticated users)
             Route::get('/coffrets/{coffret}/history', [ActivityLogController::class, 'coffretHistory']);
+
+            // Login audit - own history
+            Route::get('/login-audits/me', [LoginAuditController::class, 'myHistory']);
+
+            // Network topology
+            Route::get('/topology', [TopologyController::class, 'index']);
+
+            // Analytics (admin + directeur)
+            Route::middleware('role:administrator,directeur')->prefix('analytics')->group(function () {
+                Route::get('/equipements-by-type', [AnalyticsController::class, 'equipementsByType']);
+                Route::get('/equipements-by-classification', [AnalyticsController::class, 'equipementsByClassification']);
+                Route::get('/equipements-by-status', [AnalyticsController::class, 'equipementsByStatus']);
+                Route::get('/equipements-by-vendor', [AnalyticsController::class, 'equipementsByVendor']);
+                Route::get('/maintenance-trends', [AnalyticsController::class, 'maintenanceTrends']);
+                Route::get('/port-utilization', [AnalyticsController::class, 'portUtilization']);
+                Route::get('/sites-summary', [AnalyticsController::class, 'sitesSummary']);
+            });
         });
 
         // WRITE access for admin + directeur
-        Route::middleware('role:administrator,directeur')->group(function () {
+        Route::middleware(['role:administrator,directeur', 'throttle:write'])->group(function () {
             // Statistiques
             Route::get('/stats/global', [StatistiqueController::class, 'globalStats']);
             Route::get('/stats/systems-by-type', [StatistiqueController::class, 'systemsByType']);
@@ -116,6 +144,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/coffrets', [CoffretController::class, 'store']);
             Route::put('/coffrets/{coffret}', [CoffretController::class, 'update']);
             Route::delete('/coffrets/{coffret}', [CoffretController::class, 'destroy']);
+            Route::delete('/coffrets/{coffret}/photo', [CoffretController::class, 'deletePhoto']);
 
             Route::post('/equipements', [EquipementsController::class, 'store']);
             Route::put('/equipements/{equipement}', [EquipementsController::class, 'update']);
@@ -156,22 +185,41 @@ Route::prefix('v1')->group(function () {
             // Activity logs (admin + directeur only)
             Route::get('/activity-logs', [ActivityLogController::class, 'index']);
 
-            // CSV Exports
-            Route::get('/exports/equipements/csv', [ExportController::class, 'exportEquipementsCsv']);
-            Route::get('/exports/coffrets/csv', [ExportController::class, 'exportCoffretsCsv']);
-            Route::get('/exports/ports/csv', [ExportController::class, 'exportPortsCsv']);
-            Route::get('/exports/liaisons/csv', [ExportController::class, 'exportLiaisonsCsv']);
-            Route::get('/exports/activity-logs/csv', [ExportController::class, 'exportActivityLogsCsv']);
+            // CSV Imports
+            Route::prefix('imports')->group(function () {
+                Route::post('/coffrets/csv', [ImportController::class, 'importCoffrets']);
+                Route::post('/equipements/csv', [ImportController::class, 'importEquipements']);
+                Route::post('/ports/csv', [ImportController::class, 'importPorts']);
+                Route::post('/liaisons/csv', [ImportController::class, 'importLiaisons']);
+                Route::get('/coffrets/template', [ImportController::class, 'templateCoffrets']);
+                Route::get('/equipements/template', [ImportController::class, 'templateEquipements']);
+                Route::get('/ports/template', [ImportController::class, 'templatePorts']);
+                Route::get('/liaisons/template', [ImportController::class, 'templateLiaisons']);
+            });
 
-            // PDF Export
-            Route::get('/exports/architecture/pdf', [ExportController::class, 'exportArchitecturePdf']);
+            // Exports & Reports (rate-limited)
+            Route::middleware('throttle:export')->group(function () {
+                // CSV Exports
+                Route::get('/exports/equipements/csv', [ExportController::class, 'exportEquipementsCsv']);
+                Route::get('/exports/coffrets/csv', [ExportController::class, 'exportCoffretsCsv']);
+                Route::get('/exports/ports/csv', [ExportController::class, 'exportPortsCsv']);
+                Route::get('/exports/liaisons/csv', [ExportController::class, 'exportLiaisonsCsv']);
+                Route::get('/exports/activity-logs/csv', [ExportController::class, 'exportActivityLogsCsv']);
 
-            // Reports
-            Route::get('/reports/summary', [ReportController::class, 'summary']);
-            Route::get('/reports/network-status/pdf', [ReportController::class, 'networkStatus']);
-            Route::get('/reports/modifications/pdf', [ReportController::class, 'modifications']);
-            Route::get('/reports/interventions/pdf', [ReportController::class, 'interventions']);
-            Route::get('/reports/site/{site}/architecture/pdf', [ReportController::class, 'siteArchitecturePdf']);
+                // PDF Export
+                Route::get('/exports/architecture/pdf', [ExportController::class, 'exportArchitecturePdf']);
+
+                // Reports
+                Route::get('/reports/summary', [ReportController::class, 'summary']);
+                Route::get('/reports/network-status/pdf', [ReportController::class, 'networkStatus']);
+                Route::get('/reports/modifications/pdf', [ReportController::class, 'modifications']);
+                Route::get('/reports/interventions/pdf', [ReportController::class, 'interventions']);
+                Route::get('/reports/site/{site}/architecture/pdf', [ReportController::class, 'siteArchitecturePdf']);
+
+                // Labels (PDF)
+                Route::post('/labels/coffrets', [LabelController::class, 'coffrets']);
+                Route::post('/labels/equipements', [LabelController::class, 'equipements']);
+            });
         });
 
         // Change requests - create/delete (technicien, directeur, admin)
@@ -184,6 +232,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('users', UserController::class);
             Route::put('/change-requests/{changeRequest}/review', [ChangeRequestController::class, 'review']);
+            Route::get('/login-audits', [LoginAuditController::class, 'index']);
         });
     });
 });
