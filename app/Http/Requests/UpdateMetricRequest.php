@@ -19,7 +19,7 @@ class UpdateMetricRequest extends FormRequest
             'description' => 'nullable|string',
             'last_value' => 'nullable|string|max:255',
             'coffret_id' => 'sometimes|exists:coffrets,id',
-            'status' => 'sometimes|boolean',
+            'status' => 'sometimes|in:active,inactive,maintenance',
         ];
     }
 }

@@ -20,7 +20,7 @@ class UpdateSystemRequest extends FormRequest
             'vendor' => 'nullable|string',
             'endpoint' => 'nullable|string',
             'monitored_scope' => 'nullable|string',
-            'status' => 'sometimes|boolean',
+            'status' => 'sometimes|in:active,inactive,maintenance',
         ];
     }
 }

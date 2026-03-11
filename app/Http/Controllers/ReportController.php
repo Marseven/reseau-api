@@ -68,6 +68,64 @@ class ReportController extends Controller
     }
 
     #[OA\Get(
+        path: '/reports/summary/pdf',
+        summary: 'Rapport PDF de synthèse',
+        tags: ['Rapports'],
+        security: [['sanctum' => []]],
+        parameters: [
+            new OA\Parameter(name: 'from', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+            new OA\Parameter(name: 'to', in: 'query', required: false, schema: new OA\Schema(type: 'string', format: 'date')),
+        ],
+        responses: [
+            new OA\Response(response: 200, description: 'Fichier PDF'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+        ]
+    )]
+    public function summaryPdf(Request $request)
+    {
+        $from = $request->input('from', now()->subMonth()->toDateString());
+        $to = $request->input('to', now()->toDateString());
+
+        $logsQuery = ActivityLog::whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
+
+        $totalLogs = (clone $logsQuery)->count();
+        $byAction = (clone $logsQuery)
+            ->selectRaw('action, count(*) as count')
+            ->groupBy('action')
+            ->pluck('count', 'action')
+            ->toArray();
+
+        $maintenancesQuery = Maintenance::whereDate('created_at', '>=', $from)
+            ->whereDate('created_at', '<=', $to);
+
+        $totalMaintenances = (clone $maintenancesQuery)->count();
+        $byStatus = (clone $maintenancesQuery)
+            ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $pdf = Pdf::loadView('exports.summary', [
+            'from' => $from,
+            'to' => $to,
+            'sitesCount' => Site::count(),
+            'modifications' => [
+                'total' => $totalLogs,
+                'by_action' => $byAction,
+            ],
+            'interventions' => [
+                'total' => $totalMaintenances,
+                'by_status' => $byStatus,
+            ],
+            'generatedAt' => now()->format('d/m/Y H:i'),
+            'generatedBy' => auth()->user()?->name,
+        ]);
+
+        return $pdf->download("synthese-{$from}-{$to}.pdf");
+    }
+
+    #[OA\Get(
         path: '/reports/network-status/pdf',
         summary: 'Rapport PDF du statut réseau',
         tags: ['Rapports'],

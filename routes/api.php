@@ -29,6 +29,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\LabelController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -115,6 +116,15 @@ Route::prefix('v1')->group(function () {
             // Login audit - own history
             Route::get('/login-audits/me', [LoginAuditController::class, 'myHistory']);
 
+            // Settings (read-only for all authenticated users)
+            Route::get('/settings', [SettingsController::class, 'index']);
+
+            // Statistiques (read-only for all authenticated users)
+            Route::get('/stats/global', [StatistiqueController::class, 'globalStats']);
+            Route::get('/stats/systems-by-type', [StatistiqueController::class, 'systemsByType']);
+            Route::get('/stats/equipements-by-coffret', [StatistiqueController::class, 'equipementsByCoffret']);
+            Route::get('/stats/ports-by-vlan', [StatistiqueController::class, 'portsByVlan']);
+
             // Network topology
             Route::get('/topology', [TopologyController::class, 'index']);
 
@@ -132,12 +142,6 @@ Route::prefix('v1')->group(function () {
 
         // WRITE access for admin + directeur
         Route::middleware(['role:administrator,directeur', 'throttle:write'])->group(function () {
-            // Statistiques
-            Route::get('/stats/global', [StatistiqueController::class, 'globalStats']);
-            Route::get('/stats/systems-by-type', [StatistiqueController::class, 'systemsByType']);
-            Route::get('/stats/equipements-by-coffret', [StatistiqueController::class, 'equipementsByCoffret']);
-            Route::get('/stats/ports-by-vlan', [StatistiqueController::class, 'portsByVlan']);
-
             // CUD operations on resources
             Route::post('/sites', [SiteController::class, 'store']);
             Route::put('/sites/{site}', [SiteController::class, 'update']);
@@ -217,6 +221,7 @@ Route::prefix('v1')->group(function () {
 
                 // Reports
                 Route::get('/reports/summary', [ReportController::class, 'summary']);
+                Route::get('/reports/summary/pdf', [ReportController::class, 'summaryPdf']);
                 Route::get('/reports/network-status/pdf', [ReportController::class, 'networkStatus']);
                 Route::get('/reports/modifications/pdf', [ReportController::class, 'modifications']);
                 Route::get('/reports/interventions/pdf', [ReportController::class, 'interventions']);
@@ -231,15 +236,26 @@ Route::prefix('v1')->group(function () {
         // Change requests - create/delete (technicien, directeur, admin)
         Route::middleware('role:administrator,directeur,technicien')->group(function () {
             Route::post('/change-requests', [ChangeRequestController::class, 'store']);
+            Route::put('/change-requests/{changeRequest}', [ChangeRequestController::class, 'update']);
             Route::delete('/change-requests/{changeRequest}', [ChangeRequestController::class, 'destroy']);
         });
 
-        // USER management + change request review + settings - admin only
+        // Change request review - admin + directeur
+        Route::middleware('role:administrator,directeur')->group(function () {
+            Route::put('/change-requests/{changeRequest}/review', [ChangeRequestController::class, 'review']);
+        });
+
+        // Trash / Archives - admin + directeur
+        Route::middleware('role:administrator,directeur')->prefix('trash')->group(function () {
+            Route::get('/{resource}', [TrashController::class, 'index']);
+            Route::post('/{resource}/{id}/restore', [TrashController::class, 'restore']);
+            Route::delete('/{resource}/{id}', [TrashController::class, 'forceDelete']);
+        });
+
+        // USER management + settings write - admin only
         Route::middleware('role:administrator')->group(function () {
             Route::apiResource('users', UserController::class);
-            Route::put('/change-requests/{changeRequest}/review', [ChangeRequestController::class, 'review']);
             Route::get('/login-audits', [LoginAuditController::class, 'index']);
-            Route::get('/settings', [SettingsController::class, 'index']);
             Route::put('/settings', [SettingsController::class, 'update']);
         });
     });

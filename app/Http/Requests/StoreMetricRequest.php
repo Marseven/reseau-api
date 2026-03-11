@@ -19,7 +19,7 @@ class StoreMetricRequest extends FormRequest
             'description' => 'nullable|string',
             'last_value' => 'nullable|string|max:255',
             'coffret_id' => 'required|exists:coffrets,id',
-            'status' => 'required|boolean',
+            'status' => 'required|in:active,inactive,maintenance',
         ];
     }
 }

@@ -6,6 +6,7 @@ use App\Models\ChangeRequest;
 use App\Models\Coffret;
 use App\Helpers\ApiResponse;
 use App\Http\Requests\StoreChangeRequestRequest;
+use App\Http\Requests\UpdateChangeRequestRequest;
 use App\Http\Requests\ReviewChangeRequestRequest;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
@@ -35,8 +36,8 @@ class ChangeRequestController extends Controller
     {
         $query = ChangeRequest::with(['coffret', 'requester', 'reviewer']);
 
-        // Non-admin users only see their own requests
-        if (!$request->user()->hasRole('administrator')) {
+        // Only admin and directeur see all requests; others see only their own
+        if (!$request->user()->hasRole('administrator') && !$request->user()->hasRole('directeur')) {
             $query->where('requester_id', $request->user()->id);
         }
 
@@ -122,6 +123,54 @@ class ChangeRequestController extends Controller
     {
         return ApiResponse::success(
             $changeRequest->load('coffret.equipments', 'requester', 'reviewer')
+        );
+    }
+
+    #[OA\Put(
+        path: '/change-requests/{id}',
+        summary: 'Modifier une demande de changement',
+        security: [['sanctum' => []]],
+        tags: ['Change Requests'],
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
+        ],
+        requestBody: new OA\RequestBody(required: true, content: new OA\JsonContent(type: 'object')),
+        responses: [
+            new OA\Response(response: 200, description: 'Demande mise à jour'),
+            new OA\Response(response: 401, description: 'Non authentifié'),
+            new OA\Response(response: 403, description: 'Non autorisé'),
+            new OA\Response(response: 404, description: 'Demande non trouvée'),
+            new OA\Response(response: 422, description: 'Erreur de validation'),
+        ]
+    )]
+    public function update(UpdateChangeRequestRequest $request, ChangeRequest $changeRequest)
+    {
+        $data = $request->validated();
+
+        if ($request->hasFile('photo_before')) {
+            if ($changeRequest->photo_before) {
+                Storage::disk('public')->delete($changeRequest->photo_before);
+            }
+            $data['photo_before'] = $request->file('photo_before')->store('change-requests/photos', 'public');
+        }
+
+        if ($request->hasFile('photo_after')) {
+            if ($changeRequest->photo_after) {
+                Storage::disk('public')->delete($changeRequest->photo_after);
+            }
+            $data['photo_after'] = $request->file('photo_after')->store('change-requests/photos', 'public');
+        }
+
+        // Reset to en_attente if it was en_revision
+        if ($changeRequest->status === 'en_revision') {
+            $data['status'] = 'en_attente';
+        }
+
+        $changeRequest->update($data);
+
+        return ApiResponse::success(
+            $changeRequest->load('coffret', 'requester', 'reviewer'),
+            'Demande de modification mise à jour avec succès.'
         );
     }
 

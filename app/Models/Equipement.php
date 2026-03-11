@@ -34,7 +34,7 @@ class Equipement extends Model
     {
         parent::boot();
 
-        static::creating(function (Equipement $equipement) {
+        static::saving(function (Equipement $equipement) {
             if (empty($equipement->qr_token)) {
                 $equipement->qr_token = Str::uuid()->toString();
             }

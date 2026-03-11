@@ -20,7 +20,7 @@ class StoreSystemRequest extends FormRequest
             'vendor' => 'nullable|string',
             'endpoint' => 'nullable|string',
             'monitored_scope' => 'nullable|string',
-            'status' => 'required|boolean',
+            'status' => 'required|in:active,inactive,maintenance',
         ];
     }
 }

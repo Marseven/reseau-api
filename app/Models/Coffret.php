@@ -20,7 +20,7 @@ class Coffret extends Model
     {
         parent::boot();
 
-        static::creating(function (Coffret $coffret) {
+        static::saving(function (Coffret $coffret) {
             if (empty($coffret->qr_token)) {
                 $coffret->qr_token = Str::uuid()->toString();
             }

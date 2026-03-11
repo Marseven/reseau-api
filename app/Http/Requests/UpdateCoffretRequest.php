@@ -16,12 +16,13 @@ class UpdateCoffretRequest extends FormRequest
         return [
             'code' => 'sometimes|string|max:255',
             'name' => 'sometimes|string|max:255',
-            'piece' => 'sometimes|string',
+            'piece' => 'sometimes|nullable|string',
             'type' => 'nullable|string|max:255',
-            'long' => 'sometimes|numeric',
-            'lat' => 'sometimes|numeric',
+            'long' => 'sometimes|nullable|numeric',
+            'lat' => 'sometimes|nullable|numeric',
             'status' => 'sometimes|in:active,inactive,maintenance',
             'zone_id' => 'nullable|exists:zones,id',
+            'salle_id' => 'nullable|exists:salles,id',
             'photo' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ];
     }
