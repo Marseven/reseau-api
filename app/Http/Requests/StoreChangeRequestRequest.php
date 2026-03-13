@@ -27,8 +27,8 @@ class StoreChangeRequestRequest extends FormRequest
             'description' => 'required|string|min:10',
             'justification' => 'required|string|min:10',
             'intervention_date' => 'required|date|after_or_equal:today',
-            'photo_before' => 'nullable|image|max:5120',
-            'photo_after' => 'nullable|image|max:5120',
+            'photo_before' => 'nullable|file|mimes:jpeg,jpg,png,gif,bmp,webp|max:5120',
+            'photo_after' => 'nullable|file|mimes:jpeg,jpg,png,gif,bmp,webp|max:5120',
         ];
     }
 

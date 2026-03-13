@@ -252,9 +252,17 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{resource}/{id}', [TrashController::class, 'forceDelete']);
         });
 
-        // USER management + settings write - admin only
+        // USER read - admin + directeur
+        Route::middleware('role:administrator,directeur')->group(function () {
+            Route::get('/users', [UserController::class, 'index']);
+            Route::get('/users/{user}', [UserController::class, 'show']);
+        });
+
+        // USER write + settings write + login audits - admin only
         Route::middleware('role:administrator')->group(function () {
-            Route::apiResource('users', UserController::class);
+            Route::post('/users', [UserController::class, 'store']);
+            Route::put('/users/{user}', [UserController::class, 'update']);
+            Route::delete('/users/{user}', [UserController::class, 'destroy']);
             Route::get('/login-audits', [LoginAuditController::class, 'index']);
             Route::put('/settings', [SettingsController::class, 'update']);
         });
